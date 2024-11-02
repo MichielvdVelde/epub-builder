@@ -64,11 +64,10 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
 
 // Create the metadata.
 // This represents the metadata of the book.
-const metadata = MetadataBuilder.create(
-  "Example Title",
-  "Example Author",
-  "Example Description",
-)
+const metadata = MetadataBuilder.create()
+  .set("title", "Example Title")
+  .set("author", "Example Author")
+  .set("description", "Example Description")
   .set("language", "en")
   .set("identifier", "example-identifier")
   .add("publisher", "Example Publisher")
