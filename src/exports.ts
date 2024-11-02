@@ -1,8 +1,9 @@
 // Export all the types
-export * from "./types";
-export * from "./generate/types";
-export * from "./metadata/types";
-export * from "./render/types";
+export type * from "./types";
+export { NodeType } from "./types";
+export type * from "./generate/types";
+export type * from "./metadata/types";
+export type * from "./render/types";
 
 // Export all the modules
 export * as generate from "./generate/exports";
