@@ -57,6 +57,28 @@ export interface RenderView {
   css: CssNode[];
 }
 
+/**
+ * Options for creating a renderer.
+ * @template T The renderer options type.
+ */
+export interface CreateRendererOptions {
+  /** The filename of the template. */
+  filename?: string;
+  /** A function that returns the partial template for a given name. */
+  includer?: Includer;
+}
+
+/**
+ * Create a renderer function from a template object.
+ * @template View The view type.
+ * @param template The template object.
+ * @param options The options.
+ */
+export type CreateRenderer<View> = (
+  template: TemplateObject,
+  options?: CreateRendererOptions,
+) => Renderer<View>;
+
 /** The required templates for an EPUB. */
 export type RequiredTemplates =
   | "META-INF/container.xml"
@@ -129,17 +151,6 @@ export type Locked<Context extends RenderContext> =
     Pick<Context, "view" | "templates">
   >
   & Omit<Context, "view" | "templates">;
-
-/**
- * Options for creating a renderer.
- * @template T The renderer options type.
- */
-export type CreateRendererOptions<T> = T & {
-  /** The filename of the template. */
-  filename?: string;
-  /** A function that returns the partial template for a given name. */
-  includer?: Includer;
-};
 
 /** Make the value deep readonly. */
 export type DeepReadonly<T> = T extends (infer R)[] ? DeepReadonlyArray<R>

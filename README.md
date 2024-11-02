@@ -47,7 +47,7 @@ npm install
 
 > **Note:** This example is not yet functional.
 
-See [src/test.ts](src/test.ts) for an example of how to use this library.
+See [src/example.ts](src/exampe.ts) for an example of how to use this library.
 
 ## License
 

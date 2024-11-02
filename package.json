@@ -12,8 +12,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test-build": "tsc --noEmit",
-    "test": "npm run test-build && jest",
+    "check": "tsc --noEmit",
+    "test": "npm run check && jest",
     "generate-docs": "typedoc --out docs src/exports.ts",
     "test-generate-epub": "node ./scripts/test-generate-epub.js",
     "epubcheck": "npm run test-generate-epub && node ./scripts/epubcheck.js",

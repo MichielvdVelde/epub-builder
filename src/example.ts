@@ -1,31 +1,42 @@
-import { createRenderContext, makeRenderStep } from "./render/render";
-import createPipeline from "./pipeline";
-import { Uint8ArrayWriter } from "@zip.js/zip.js";
-import { generateEpub } from "./generate/generate";
-import { NodeType } from "./types";
-import { wrapTemplate } from "./render/helpers";
-import { EpubStructure } from "./generate/types";
-import { makeRenderChaptersStep } from "./render/nodes/chapters";
-import { makeRenderFonts } from "./render/nodes/fonts";
 import type {
   Locked,
   RenderContext,
   RenderView,
   Templates,
-} from "././render/types";
+} from "./render/types";
+import type { EpubStructure } from "./generate/types";
+import { Uint8ArrayWriter } from "@zip.js/zip.js";
+import { NodeType } from "./types";
+import { createPipeline } from "./pipeline";
+import { createRenderContext, makeRenderFile } from "./render/render";
+import { generateEpub } from "./generate/generate";
+import { wrapTemplate } from "./render/helpers";
+import { createRenderer } from "./render/renderers/mustache";
+import { makeRenderChapters } from "./render/nodes/chapters";
+import { makeRenderFonts } from "./render/nodes/fonts";
+
+// This is an example of how to use the library to generate an EPUB file.
+// This example is currently **not** working because epub-builder is a work in progress.
+
+// We'll use the built=in Mustache renderer.
+// The other built-in option is EJS.
+const options = { createRenderer };
 
 // Create the render pipeline.
 // This pipeline generates the structure of the book.
 const renderPipeline = createPipeline<Locked<RenderContext>>(
-  makeRenderStep("META-INF/container.xml"),
-  makeRenderStep("OEBPS/content.opf"),
-  makeRenderStep("OEBPS/toc.ncx"),
-  makeRenderStep("OEBPS/nav.xhtml", {
+  makeRenderFile("META-INF/container.xml", options),
+  makeRenderFile("OEBPS/content.opf", options),
+  makeRenderFile("OEBPS/toc.ncx", options),
+  makeRenderFile("OEBPS/nav.xhtml", {
+    createRenderer,
     // Transform the view to include only the spine.
     transformView: (ctx) => (ctx.view.spine),
   }),
-  makeRenderChaptersStep({
+  makeRenderChapters({
+    createRenderer,
     templatePath: "chapter.xhtml",
+    // Transform the filename of a chapter.
     transformFilename: (_, i) => `OEBS/chapters/chapter-${i}.xhtml`,
   }),
   makeRenderFonts({
@@ -34,6 +45,9 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
   // ... Add more steps here.
 );
 
+// Create the view.
+// This represents the structure of the book.
+// In a real application, this would be the actual structure of the book.
 const view: RenderView = {
   metadata: {
     id: "metadata",
@@ -74,11 +88,13 @@ const view: RenderView = {
   images: [],
 };
 
+// Create dummy templates.
+// In a real application, these would be the actual templates.
 const templates: Templates = {
-  "META-INF/container.xml": wrapTemplate(""),
-  "OEBPS/content.opf": wrapTemplate(""),
-  "OEBPS/toc.ncx": wrapTemplate(""),
-  "OEBPS/nav.xhtml": wrapTemplate(""),
+  "META-INF/container.xml": wrapTemplate("..."),
+  "OEBPS/content.opf": wrapTemplate("..."),
+  "OEBPS/toc.ncx": wrapTemplate("..."),
+  "OEBPS/nav.xhtml": wrapTemplate("..."),
 };
 
 // Create the context.

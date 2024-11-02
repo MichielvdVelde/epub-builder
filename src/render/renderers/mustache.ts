@@ -10,7 +10,7 @@ import { render, type RenderOptions } from "mustache";
  */
 export function createRenderer<View>(
   template: TemplateObject,
-  options?: CreateRendererOptions<RenderOptions>,
+  options?: CreateRendererOptions & RenderOptions,
 ): Renderer<View> {
   const renderer: Renderer<View> = async (view) => {
     return render(template.template, view, options?.includer, options);

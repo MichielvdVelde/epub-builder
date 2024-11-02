@@ -12,7 +12,7 @@ type RendererOptions = Omit<Options, "async" | "client">;
  */
 export function createRenderer<View>(
   template: TemplateObject,
-  options?: CreateRendererOptions<RendererOptions>,
+  options?: CreateRendererOptions & RendererOptions,
 ): Renderer<View> {
   const render = compile(template.template, {
     ...options,

@@ -60,8 +60,6 @@ export function createPipeline<Context>(
   };
 }
 
-export default createPipeline;
-
 /**
  * An error that occurred during a pipe.
  */

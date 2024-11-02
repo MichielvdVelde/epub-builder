@@ -1,5 +1,6 @@
 import type { Step } from "../pipeline";
 import type {
+  CreateRenderer,
   Includer,
   Locked,
   RenderContext,
@@ -9,7 +10,6 @@ import type {
   TransformView,
 } from "./types";
 import { setAtPath } from "../helpers";
-import { createRenderer } from "./renderers/mustache";
 import { createLog, type Log } from "../log";
 import { getRenderView } from "./helpers";
 
@@ -17,6 +17,8 @@ import { getRenderView } from "./helpers";
  * Options for making a render step.
  */
 export interface MakeRenderStepOptions<View> {
+  /** Create a renderer for the template. */
+  createRenderer: CreateRenderer<View>;
   /**
    * Transform the view for rendering.
    * @param ctx The render context.
@@ -27,14 +29,15 @@ export interface MakeRenderStepOptions<View> {
 /**
  * Make a renderer for a file using a template.
  * @param path The path of the file.
- * @param template The source template.
  * @param options The options for the renderer.
- * @returns A pipe function that renders the template and sets it in the context.
+ * @returns A step that renders the template.
  */
-export function makeRenderStep<View = RenderView>(
+export function makeRenderFile<View = RenderView>(
   path: string,
-  options?: MakeRenderStepOptions<View>,
+  options: MakeRenderStepOptions<View>,
 ): RenderStep<Locked<RenderContext>> {
+  const { createRenderer } = options;
+
   const renderStep: Step<RenderContext> = async function renderTemplate(ctx) {
     const { templates, structure, log } = ctx;
     const template = templates[path];
@@ -43,7 +46,7 @@ export function makeRenderStep<View = RenderView>(
       throw new IncludeError(path, `Template not found: ${path}`);
     }
 
-    const render = createRenderer<View>(template, {
+    const render = createRenderer(template, {
       filename: path,
       includer: makeIncluder(ctx),
     });

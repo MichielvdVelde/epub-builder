@@ -65,7 +65,9 @@ async function addEntries<Type>(
   }
 }
 
+/** The options for adding an entry to the ZIP archive. */
 export interface AddEntryOptions extends ZipWriterAddDataOptions {
+  /** The logger for logging messages. */
   log?: Log;
 }
 
@@ -77,7 +79,7 @@ export interface AddEntryOptions extends ZipWriterAddDataOptions {
  * @param entry The entry to add.
  * @param options The options for adding the entry.
  */
-export async function addEntry<Type>(
+async function addEntry<Type>(
   writer: ZipWriter<Type>,
   filename: string,
   entry: EntryType,
@@ -170,16 +172,9 @@ export async function generateEpub<Type>(
 
   const { mimetype, ...entries } = structure;
 
-  try {
-    // NOTE: The mimetype file must be the first file in the ZIP archive.
-    await addMimetype(zipWriter, mimetype, options);
-    await addEntries(zipWriter, entries as EntryObject<string>, options);
-  } catch (error) {
-    throw new AggregateError(
-      [error],
-      "Failed to add entries to ZIP archive.",
-    );
-  }
+  // NOTE: The mimetype file must be the first file in the ZIP archive.
+  await addMimetype(zipWriter, mimetype, options);
+  await addEntries(zipWriter, entries as EntryObject<string>, options);
 
   return zipWriter.close();
 }

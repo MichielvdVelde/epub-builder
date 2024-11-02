@@ -52,6 +52,13 @@ export class MetadataBuilder {
   }
 
   /**
+   * Get the metadata object. This is the raw metadata object.
+   */
+  get metadata(): Metadata {
+    return this.#metadata;
+  }
+
+  /**
    * Set a metadata key-value pair.
    *
    * In contrast to {@link MetadataBuilder.add}, this method sets a single value for the metadata key.

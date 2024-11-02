@@ -1,4 +1,5 @@
 import type {
+  CreateRenderer,
   Locked,
   RenderContext,
   RenderStep,
@@ -10,11 +11,12 @@ import type { Step } from "../../pipeline";
 import type { ChapterNode } from "../../types";
 import { setAtPath } from "../../helpers";
 import { IncludeError, makeIncluder, pathSep, RenderError } from "../render";
-import { createRenderer } from "../renderers/mustache";
 import { getRenderView } from "../helpers";
 
 /** Options for rendering chapters. */
 export interface RenderChapterOptions<View> {
+  /** Create a renderer for the template. */
+  createRenderer: CreateRenderer<View>;
   templatePath: string;
   /** Transform the filename of a chapter. */
   transformFilename?: TransformFilename<ChapterNode>;
@@ -25,10 +27,10 @@ export interface RenderChapterOptions<View> {
 /**
  * Make a render step for rendering chapters.
  */
-export function makeRenderChaptersStep<View = RenderView>(
+export function makeRenderChapters<View = RenderView>(
   options: RenderChapterOptions<View>,
 ): RenderStep<Locked<RenderContext>> {
-  const { templatePath } = options;
+  const { createRenderer, templatePath } = options;
   const transformFilename = options.transformFilename;
   const transformView = options.transformView;
 
@@ -47,7 +49,7 @@ export function makeRenderChaptersStep<View = RenderView>(
     }
 
     // Create a renderer for the template.
-    const render = createRenderer<View>(
+    const render = createRenderer(
       template,
       {
         filename: templatePath,
