@@ -16,10 +16,7 @@
   ],
   "exclude": [
     "node_modules",
-    "lib"
-  ],
-  "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
-    "out": "docs"
-  }
+    "lib",
+    "./src/example.ts"
+  ]
 }
