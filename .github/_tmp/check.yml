@@ -1,0 +1,53 @@
+# Generate and validate an EPUB test file.
+# This workflow uses EPUBCheck to validate the generated EPUB test file.
+
+name: EPUB Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22, 23] # LTS and latest version of Node.js
+
+    env:
+      JAVA_VERSION: 23
+      EPUBCHECK_VERSION: 5.1.0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate EPUB file
+        run: npm run test-generate-epub
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Download EPUBCheck
+        run: |
+          wget https://github.com/w3c/epubcheck/releases/download/v${{ env.EPUBCHECK_VERSION }}/epubcheck-${{ env.EPUBCHECK_VERSION }}.zip
+          unzip epubcheck-${{ env.EPUBCHECK_VERSION }}.zip -d epubcheck
+          chmod +x epubcheck/epubcheck.jar
+
+      - name: Run EPUBCheck
+        run: java -jar epubcheck/epubcheck.jar book.epub
+        continue-on-error: false

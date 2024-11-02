@@ -1,0 +1,40 @@
+# Continuous Integration (CI) workflow for Node.js
+# This workflow uses an action to run tests with coverage on multiple versions of Node.js.
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22, 23] # LTS and latest version of Node.js
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests with coverage
+      run: npm test -- --coverage
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: matrix.node-version == 23
+      with:
+        name: coverage-report
+        path: coverage
