@@ -107,12 +107,14 @@ async function addEntry<Type>(
 }
 
 /** The options for the EPUB generator. */
-export type GenerateOptions =
-  & Omit<
+export interface GenerateOptions extends
+  Omit<
     ZipReaderConstructorOptions,
     "keepOrder" | "level"
-  >
-  & { log?: Log };
+  > {
+  /** The logger for logging messages. */
+  log?: Log;
+}
 
 /**
  * Generate an EPUB book.
@@ -130,12 +132,12 @@ export type GenerateOptions =
  *
  * @example
  * ```ts
- * import { generateEpub, type EpubStructure } from "b2";
- * import { FileWriter } from "@zip.js/zip.js";
+ * import { generateEpub, type EpubStructure } from "./generate";
+ * import { BlobWriter } from "@zip.js/zip.js";
  *
  * // Create a ZIP writer for the EPUB book.
- * // In this case, we use the FileWriter to write the EPUB book to a file.
- * const writer = new FileWriter("book.epub");
+ * // In this case, we use the BlobWriter to write the EPUB book to a Blob.
+ * const writer = new BlobWriter("application/epub+zip");
  *
  * // The structure of the EPUB book.
  * const structure: EpubStructure = {
@@ -150,7 +152,7 @@ export type GenerateOptions =
  * };
  *
  * // Generate an EPUB book and write it to the file.
- * await generateEpub(writer, structure);
+ * const blob = await generateEpub(writer, structure);
  * ```
  */
 export async function generateEpub<Type>(

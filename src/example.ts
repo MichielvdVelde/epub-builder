@@ -2,25 +2,41 @@
 // This example is currently **not** working because epub-builder is a work in progress.
 
 import type {
+  CreateRenderer,
   Locked,
   RenderContext,
+  Renderer,
   RenderView,
   Templates,
 } from "./render/types";
 import type { EpubStructure } from "./generate/types";
 import { Uint8ArrayWriter } from "@zip.js/zip.js";
-import { NodeType } from "./types";
+import { NodeType, SpineNode } from "./types";
 import { createPipeline } from "./pipeline";
 import { makeRenderFile } from "./render/render";
 import { generateEpub } from "./generate/generate";
 import { createRenderContext, wrapTemplate } from "./render/helpers";
-import { createRenderer } from "./render/renderers/mustache";
 import { makeRenderChapters } from "./render/nodes/chapters";
 import { makeRenderFonts } from "./render/nodes/fonts";
 import { MetadataBuilder } from "./metadata/builder";
+import { render, type RenderOptions } from "mustache";
 
-// We'll use the built=in Mustache renderer.
-// The other built-in option is EJS.
+// Create a renderer.
+// We'll use Mustache to render the templates.
+const createRenderer: CreateRenderer<any> = (template, options) => {
+  const renderer: Renderer<any> = async (view) => {
+    return render(
+      template.template,
+      view,
+      options?.includer,
+      options as RenderOptions,
+    );
+  };
+
+  renderer.filename = options?.filename;
+  return renderer;
+};
+
 const options = { createRenderer };
 
 // Create the render pipeline.
@@ -29,7 +45,7 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
   makeRenderFile("META-INF/container.xml", options),
   makeRenderFile("OEBPS/content.opf", options),
   makeRenderFile("OEBPS/toc.ncx", options),
-  makeRenderFile("OEBPS/nav.xhtml", {
+  makeRenderFile<SpineNode[]>("OEBPS/nav.xhtml", {
     createRenderer,
     // Transform the view to include only the spine nodes.
     transformView: (ctx) => (ctx.view.spine),
