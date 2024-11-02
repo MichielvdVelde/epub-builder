@@ -31,8 +31,6 @@ npm install
   types (CSS, fonts, images, audio) in the EPUB’s internal structure.
 - 🔍 **Content Type Safety**: Enforces content type safety with TypeScript
   interfaces for each node type (e.g., Chapter, Image, Font).
-- 🌐 **Path-Based Content Manipulation**: Utilities for setting and retrieving
-  values in deeply nested structures using flexible path strings.
 - 🔄 **Dynamic Content Source Handling**: Supports content from both direct
   input and file paths, handling text and binary data seamlessly.
 - 🧪 **Error Handling and Logging**: Detailed logging and custom error types for
@@ -53,4 +51,5 @@ See [src/test.ts](src/test.ts) for an example of how to use this library.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file
+for details.

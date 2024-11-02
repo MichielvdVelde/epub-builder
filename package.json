@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "description": "A builder for creating EPUB files",
   "author": "Michiel van der Velde <michiel@michielvdvelde.nl> (https://michielvdvelde.nl)",
+  "license": "MIT",
   "main": "./dist/exports.js",
   "type": "module",
   "bin": {
