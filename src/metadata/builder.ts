@@ -21,29 +21,22 @@ import { ParseError } from "./errors";
 export class MetadataBuilder {
   /**
    * Create a new instance of the {@link MetadataBuilder} class.
-   * @param title The title of the text.
-   * @param author The author of the text.
-   * @param description A brief description of the text.
    */
-  static create(
-    title: string,
-    author: string,
-    description: string,
-  ): MetadataBuilder {
-    return new MetadataBuilder(title, author, description);
+  static create(): MetadataBuilder {
+    return new MetadataBuilder();
   }
 
   /** The metadata object. */
-  #metadata: Metadata;
+  #metadata: Partial<Metadata>;
 
-  private constructor(title: string, author: string, description: string) {
-    this.#metadata = { title, author, description };
+  private constructor() {
+    this.#metadata = {};
   }
 
   /**
    * Get the metadata object. This is the raw metadata object.
    */
-  get metadata(): Metadata {
+  get metadata(): Partial<Metadata> {
     return this.#metadata;
   }
 
