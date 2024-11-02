@@ -28,6 +28,6 @@ const schema = z.object({
 export default schema;
 
 /**
- * The type of the metadata object after validation.
+ * The parsed metadata object.
  */
 export type ParsedMetadata = z.infer<typeof schema>;

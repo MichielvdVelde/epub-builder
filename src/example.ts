@@ -30,7 +30,7 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
   makeRenderFile("OEBPS/toc.ncx", options),
   makeRenderFile("OEBPS/nav.xhtml", {
     createRenderer,
-    // Transform the view to include only the spine.
+    // Transform the view to include only the spine nodes.
     transformView: (ctx) => (ctx.view.spine),
   }),
   makeRenderChapters({
@@ -95,6 +95,7 @@ const templates: Templates = {
   "OEBPS/content.opf": wrapTemplate("..."),
   "OEBPS/toc.ncx": wrapTemplate("..."),
   "OEBPS/nav.xhtml": wrapTemplate("..."),
+  "chapter.xhtml": wrapTemplate("..."),
 };
 
 // Create the context.
@@ -105,15 +106,15 @@ await renderPipeline.run(context);
 
 // Generate the EPUB file.
 const writer = new Uint8ArrayWriter();
-const buf = await generateEpub(writer, context.structure as EpubStructure);
+const buffer = await generateEpub(writer, context.structure as EpubStructure);
 
 // Example of how to save the EPUB file to the Origin Private File System (OPFS) in a web browser.
 // OPFS is a new web standard that allows web applications to store files in a private file system.
 if (navigator?.storage?.getDirectory) {
   const root = await navigator.storage.getDirectory();
-  const booksDir = await root.getDirectoryHandle("books", { create: true });
-  const file = await booksDir.getFileHandle("book.epub", { create: true });
-  const writable = await file.createWritable();
-  await writable.write(buf);
+  const books = await root.getDirectoryHandle("books", { create: true });
+  const book = await books.getFileHandle("book.epub", { create: true });
+  const writable = await book.createWritable();
+  await writable.write(buffer);
   await writable.close();
 }

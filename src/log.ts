@@ -90,6 +90,11 @@ export interface Log extends Array<LogItem> {
     listener: (event: CustomEvent<LogItem>) => void,
     options?: boolean | EventListenerOptions,
   ): void;
+  /**
+   * Iterate over all log items, optionally filtered by level.
+   * @param level The level or levels to filter by (optional, default is all levels).
+   */
+  items(level?: LogLevel | LogLevel[]): IterableIterator<LogItem>;
 }
 
 /** Options for creating a log. */
@@ -126,6 +131,25 @@ export function createLog(options?: CreateLogOptions): Log {
       target,
     ) as Log["addEventListener"]
     : () => {}; // noop when emitting is disabled
+
+  log.removeEventListener = target
+    ? target.removeEventListener.bind(
+      target,
+    ) as Log["removeEventListener"]
+    : () => {}; // noop when emitting is disabled
+
+  log.items = function* (level?: LogLevel | LogLevel[]) {
+    for (const item of log) {
+      if (
+        level === undefined ||
+        (Array.isArray(level)
+          ? level.includes(item.level)
+          : item.level === level)
+      ) {
+        yield item;
+      }
+    }
+  };
 
   return log;
 }

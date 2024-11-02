@@ -150,8 +150,12 @@ export enum ContentFormat {
 }
 
 /**
- * The format of the content.
- * @template T The type of the content.
+ * The source of the content.
+ *
+ * If the `content` property is provided, the `src` property is ignored.
+ *
+ * @template Format The format of the content.
+ * @template Type The type of the content.
  */
 export interface ContentSource<
   Format extends ContentFormat,
