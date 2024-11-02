@@ -1,97 +1,66 @@
-import type {
-  ChapterNode,
-  CssNode,
-  FontNode,
-  ImageNode,
-  MetadataNode,
-  Node,
-  NodeType,
-  RefNode,
-  SpineNode,
-} from "../types";
 import type { Step } from "../pipeline";
-import type { EpubStructure } from "../generate/types";
-import type { DeepReadonly, Includer, TemplateObject } from "./types";
+import type {
+  Includer,
+  Locked,
+  RenderContext,
+  RenderStep,
+  RenderView,
+  Templates,
+  TransformView,
+} from "./types";
 import { setAtPath } from "../helpers";
 import { createRenderer } from "./renderers/mustache";
 import { createLog, type Log } from "../log";
-
-/** A template for rendering. */
-// export type Template = string;
+import { getRenderView } from "./helpers";
 
 /**
- * A render view.
+ * Options for making a render step.
  */
-export interface RenderView {
-  /** The metadata of the EPUB. */
-  metadata: MetadataNode;
-  /** The cover image of the EPUB. */
-  cover: ImageNode | RefNode<NodeType.Image>;
-  /** The images of the EPUB. */
-  images: ImageNode[];
-  /** The chapters of the EPUB. */
-  chapters: ChapterNode[];
-  /** The spine of the EPUB. */
-  spine: SpineNode[];
-  /** The fonts of the EPUB. */
-  fonts: FontNode[];
-  /** The CSS files of the EPUB. */
-  css: CssNode[];
-}
-
-/** The required templates for an EPUB. */
-export type RequiredTemplates =
-  | "META-INF/container.xml"
-  | "OEBPS/content.opf"
-  | "OEBPS/toc.ncx"
-  | "OEBPS/nav.xhtml";
-
-/** The templates for an EPUB. */
-export type Templates =
-  & Required<Record<RequiredTemplates, TemplateObject | undefined>>
-  & Record<string, TemplateObject | undefined>;
-
-/** The context for the render pipeline. */
-export interface RenderContext {
-  /** The view to render the template with. */
-  view: RenderView;
-  /** The templates for the EPUB. */
-  templates: Templates;
-  /** The structure of the EPUB. */
-  structure: Partial<EpubStructure>;
-  /** The log of the render pipeline. */
-  log: Log;
+export interface MakeRenderStepOptions<View> {
+  /**
+   * Transform the view for rendering.
+   * @param ctx The render context.
+   */
+  transformView?: TransformView<View>;
 }
 
 /**
- * Make a renderer for a file.
+ * Make a renderer for a file using a template.
  * @param path The path of the file.
  * @param template The source template.
  * @param options The options for the renderer.
  * @returns A pipe function that renders the template and sets it in the context.
  */
-export default function makeRenderStep(
+export function makeRenderStep<View = RenderView>(
   path: string,
+  options?: MakeRenderStepOptions<View>,
 ): RenderStep<Locked<RenderContext>> {
   const renderStep: Step<RenderContext> = async function renderTemplate(ctx) {
-    const { view, templates, structure, log } = ctx;
+    const { templates, structure, log } = ctx;
     const template = templates[path];
 
     if (!template) {
       throw new IncludeError(path, `Template not found: ${path}`);
     }
 
-    const render = createRenderer<RenderView>(template, {
+    const render = createRenderer<View>(template, {
       filename: path,
       includer: makeIncluder(ctx),
     });
 
+    // Get the render view from the context.
+    const renderView = getRenderView(ctx, options?.transformView);
+
     let content: string | undefined;
 
     try {
-      content = await render(view);
+      content = await render(renderView);
     } catch (error) {
-      throw new RenderError([error], renderStep as RenderStep<RenderContext>);
+      throw new RenderError(
+        [error],
+        renderStep as RenderStep<RenderContext>,
+        `Failed to render template: ${path}`,
+      );
     }
 
     // Set the rendered content in the structure.
@@ -106,35 +75,6 @@ export default function makeRenderStep(
 
   return renderStep as RenderStep<Locked<RenderContext>>;
 }
-
-/**
- * Transform the filename of a chapter.
- *
- * **NOTE:** The filename must be the full path of the chapter, and end with the `.xhtml` extension.
- * This is however **not validated** upstream, so it is up to the caller to ensure this.
- *
- * @param chapter The chapter to transform.
- * @param index The index of the chapter. This is 1-based.
- * @default `OEBS/chapter-${index}.xhtml`
- */
-export type TransformFilename<N extends Node> = (
-  chapter: N,
-  index: number,
-) => string;
-
-/**
- * A locked render context.
- *
- * This is a context that is locked for modification.
- * The view and templates are read-only.
- *
- * @template Context The render context type.
- */
-export type Locked<Context extends RenderContext> =
-  & DeepReadonly<
-    Pick<Context, "view" | "templates">
-  >
-  & Omit<Context, "view" | "templates">;
 
 /** The path separator for setting values in the structure. */
 export const pathSep = { separator: "/" } as const;
@@ -170,19 +110,6 @@ export function createRenderContext(
     structure: {},
     log: createLog(),
   };
-}
-
-/**
- * A render step.
- *
- * This is a function that renders a template with a context.
- *
- * @template RenderContext The context type.
- * @param ctx The context.
- */
-export interface RenderStep<RenderContext> extends Step<RenderContext> {
-  /** The filename of the template. */
-  filename: string;
 }
 
 /**

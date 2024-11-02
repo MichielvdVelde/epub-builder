@@ -1,10 +1,4 @@
-import makeRenderStep, {
-  createRenderContext,
-  Locked,
-  type RenderContext,
-  RenderView,
-  Templates,
-} from "./render/render";
+import { createRenderContext, makeRenderStep } from "./render/render";
 import createPipeline from "./pipeline";
 import { Uint8ArrayWriter } from "@zip.js/zip.js";
 import { generateEpub } from "./generate/generate";
@@ -13,6 +7,12 @@ import { wrapTemplate } from "./render/helpers";
 import { EpubStructure } from "./generate/types";
 import { makeRenderChaptersStep } from "./render/nodes/chapters";
 import { makeRenderFonts } from "./render/nodes/fonts";
+import type {
+  Locked,
+  RenderContext,
+  RenderView,
+  Templates,
+} from "././render/types";
 
 // Create the render pipeline.
 // This pipeline generates the structure of the book.
@@ -20,7 +20,10 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
   makeRenderStep("META-INF/container.xml"),
   makeRenderStep("OEBPS/content.opf"),
   makeRenderStep("OEBPS/toc.ncx"),
-  makeRenderStep("OEBPS/nav.xhtml"),
+  makeRenderStep("OEBPS/nav.xhtml", {
+    // Transform the view to include only the spine.
+    transformView: (ctx) => (ctx.view.spine),
+  }),
   makeRenderChaptersStep({
     templatePath: "chapter.xhtml",
     transformFilename: (_, i) => `OEBS/chapters/chapter-${i}.xhtml`,

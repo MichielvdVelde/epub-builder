@@ -1,33 +1,37 @@
+import type {
+  Locked,
+  RenderContext,
+  RenderStep,
+  RenderView,
+  TransformFilename,
+  TransformView,
+} from "../types";
 import type { Step } from "../../pipeline";
 import type { ChapterNode } from "../../types";
 import { setAtPath } from "../../helpers";
-import {
-  IncludeError,
-  type Locked,
-  makeIncluder,
-  pathSep,
-  type RenderContext,
-  RenderError,
-  type RenderStep,
-  type RenderView,
-  type TransformFilename,
-} from "../render";
+import { IncludeError, makeIncluder, pathSep, RenderError } from "../render";
 import { createRenderer } from "../renderers/mustache";
+import { getRenderView } from "../helpers";
 
 /** Options for rendering chapters. */
-export interface RenderChapterOptions {
-  /** The path of the template for rendering chapters. */
+export interface RenderChapterOptions<View> {
   templatePath: string;
   /** Transform the filename of a chapter. */
   transformFilename?: TransformFilename<ChapterNode>;
+  /** Transform the view for rendering. */
+  transformView?: TransformView<View>;
 }
 
 /**
  * Make a render step for rendering chapters.
  */
-export function makeRenderChaptersStep(
-  { templatePath, transformFilename }: RenderChapterOptions,
+export function makeRenderChaptersStep<View = RenderView>(
+  options: RenderChapterOptions<View>,
 ): RenderStep<Locked<RenderContext>> {
+  const { templatePath } = options;
+  const transformFilename = options.transformFilename;
+  const transformView = options.transformView;
+
   const renderStep: Step<RenderContext> = async function renderChapters(ctx) {
     const { view, templates, structure, log } = ctx;
     const template = templates[templatePath];
@@ -43,14 +47,16 @@ export function makeRenderChaptersStep(
     }
 
     // Create a renderer for the template.
-    type ChapterView = { chapter: ChapterNode };
-    const render = createRenderer<RenderView & ChapterView>(
+    const render = createRenderer<View>(
       template,
       {
         filename: templatePath,
         includer: makeIncluder(ctx),
       },
     );
+
+    // Get the render view from the context.
+    const renderView = getRenderView(ctx, transformView);
 
     // Order chapters so they are rendered in the correct order.
     const chapters = [...view.chapters].sort((a, b) => a.order - b.order);
@@ -60,7 +66,7 @@ export function makeRenderChaptersStep(
       const chapter = chapters[i];
 
       try {
-        const content = await render({ ...view, chapter });
+        const content = await render(renderView);
         const filename = transformFilename?.(chapter, i) ??
           `OEBS/chapter-${i}.xhtml`;
 

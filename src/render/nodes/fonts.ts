@@ -1,12 +1,13 @@
+import type {
+  Locked,
+  RenderContext,
+  RenderStep,
+  TransformFilename,
+} from "../types";
 import type { Step } from "../../pipeline";
 import { getContent, setAtPath } from "../../helpers";
 import { ContentFormat, type FontNode } from "../../types";
-import {
-  type Locked,
-  pathSep,
-  type RenderContext,
-  type TransformFilename,
-} from "../render";
+import { pathSep } from "../render";
 
 /** Options for rendering fonts. */
 export interface RenderFontOptions {
@@ -21,7 +22,7 @@ export interface RenderFontOptions {
  */
 export function makeRenderFonts(
   options?: RenderFontOptions,
-): Step<Locked<RenderContext>> {
+): RenderStep<Locked<RenderContext>> {
   const renderStep: Step<RenderContext> = async function renderFonts(ctx) {
     const { view, structure, log } = ctx;
     const { fonts } = view;
@@ -58,5 +59,5 @@ export function makeRenderFonts(
     log.info(`[fonts] Rendered ${fonts.length} fonts.`, { fonts });
   };
 
-  return renderStep as Step<Locked<RenderContext>>;
+  return renderStep as RenderStep<Locked<RenderContext>>;
 }
