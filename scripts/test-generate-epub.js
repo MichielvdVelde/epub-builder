@@ -1,1 +1,3 @@
-console.log("Not implemented yet");
+#!/usr/bin/env node
+
+console.error("Not implemented yet");

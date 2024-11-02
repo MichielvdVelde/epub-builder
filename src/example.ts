@@ -1,3 +1,6 @@
+// This is an example of how to use the library to generate an EPUB file.
+// This example is currently **not** working because epub-builder is a work in progress.
+
 import type {
   Locked,
   RenderContext,
@@ -8,15 +11,13 @@ import type { EpubStructure } from "./generate/types";
 import { Uint8ArrayWriter } from "@zip.js/zip.js";
 import { NodeType } from "./types";
 import { createPipeline } from "./pipeline";
-import { createRenderContext, makeRenderFile } from "./render/render";
+import { makeRenderFile } from "./render/render";
 import { generateEpub } from "./generate/generate";
-import { wrapTemplate } from "./render/helpers";
+import { createRenderContext, wrapTemplate } from "./render/helpers";
 import { createRenderer } from "./render/renderers/mustache";
 import { makeRenderChapters } from "./render/nodes/chapters";
 import { makeRenderFonts } from "./render/nodes/fonts";
-
-// This is an example of how to use the library to generate an EPUB file.
-// This example is currently **not** working because epub-builder is a work in progress.
+import { MetadataBuilder } from "./metadata/builder";
 
 // We'll use the built=in Mustache renderer.
 // The other built-in option is EJS.
@@ -33,9 +34,8 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
     // Transform the view to include only the spine nodes.
     transformView: (ctx) => (ctx.view.spine),
   }),
-  makeRenderChapters({
+  makeRenderChapters("chapter.xhtml", {
     createRenderer,
-    templatePath: "chapter.xhtml",
     // Transform the filename of a chapter.
     transformFilename: (_, i) => `OEBS/chapters/chapter-${i}.xhtml`,
   }),
@@ -45,16 +45,27 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
   // ... Add more steps here.
 );
 
+// Create the metadata.
+// This represents the metadata of the book.
+const metadata = MetadataBuilder.create(
+  "My Book",
+  "John Doe",
+  "This is a book.",
+)
+  .set("publisher", "My Publisher")
+  .set("language", "en")
+  .set("identifier", "urn:isbn:1234567890")
+  .set("date", "2022-01-01")
+  .set("rights", "© 2022 John Doe")
+  .build();
+
 // Create the view.
-// This represents the structure of the book.
-// In a real application, this would be the actual structure of the book.
+// This represents the content of the book.
 const view: RenderView = {
   metadata: {
     id: "metadata",
+    ...{ ...metadata, mType: metadata.type }, // FIX: The node has a `type` property which overlaps with the `type` property of the `Metadata` type.
     type: NodeType.Metadata,
-    title: "My Book",
-    author: "John Doe",
-    description: "This is a book.",
   },
   chapters: [
     {

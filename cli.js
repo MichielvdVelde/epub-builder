@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 
-console.log("Not implemented yet");
+console.error("Not implemented yet");
+process.exit(1);

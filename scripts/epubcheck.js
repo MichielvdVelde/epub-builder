@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { exec } from "child_process";
 import { promisify } from "util";
 import { fileURLToPath } from "url";
@@ -5,8 +7,7 @@ import { stat } from "fs/promises";
 
 const execPromise = promisify(exec);
 
-const DEFAULT_SRC = "../artifacts/book.epub";
-// const EPUBCHECK_PATH = join(import.meta.dirname, "lib", "epubcheck.jar");
+const DEFAULT_SRC = "../artifacts/book.epub"; // Relative path to the EPUBCheck JAR file
 const EPUBCHECK_PATH = new URL("../lib/epubcheck.jar", import.meta.url);
 
 /** Error message to display when the EPUBCheck JAR file is not found. */
@@ -15,6 +16,7 @@ const notFoundMessage = "EPUBCheck JAR file not found. " +
 
 /**
  * Checks if the EPUBCheck JAR file exists in the 'lib' directory.
+ * @returns {Promise<boolean>} Whether the EPUBCheck JAR file exists.
  */
 export async function checkJar() {
   try {
@@ -31,6 +33,9 @@ export async function checkJar() {
 
 /**
  * Validates an EPUB file using EPUBCheck.
+ * @param {string} path Path to the EPUB file to validate.
+ * @throws {AggregateError} If the EPUB validation fails.
+ * @returns {Promise<string>} The stdout output from the EPUBCheck process.
  */
 async function validateEpub(path) {
   const { stdout, stderr } = await execPromise(
@@ -47,7 +52,7 @@ async function validateEpub(path) {
     );
   }
 
-  console.log(`EPUB validation successful:\n${stdout}`);
+  return stdout;
 }
 
 // Run the script
@@ -68,12 +73,15 @@ try {
 }
 
 // Validate the EPUB file
+let stdout;
+
 try {
-  await validateEpub(src);
+  stdout = await validateEpub(src);
 } catch (error) {
   console.error("An error occurred while validating the EPUB file:");
   console.error(error.errors.map((err) => ` ${err.message}`).join("\n"));
   process.exit(1);
 }
 
-console.log("EPUB validation successful.");
+console.log("EPUB validation successful.\n-----\n");
+console.log(stdout);

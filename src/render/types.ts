@@ -94,13 +94,13 @@ export type Templates =
 /** The context for the render pipeline. */
 export interface RenderContext {
   /** The view to render the template with. */
-  view: RenderView;
+  readonly view: RenderView;
   /** The templates for the EPUB. */
-  templates: Templates;
+  readonly templates: Templates;
   /** The structure of the EPUB. */
-  structure: Partial<EpubStructure>;
+  readonly structure: Partial<EpubStructure>;
   /** The log of the render pipeline. */
-  log: Log;
+  readonly log: Log;
 }
 
 /** A template object. Acts as a wrapper for a template string. */

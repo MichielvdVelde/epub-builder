@@ -7,7 +7,7 @@ import type {
 import type { Step } from "../../pipeline";
 import { getContent, setAtPath } from "../../helpers";
 import { ContentFormat, type FontNode } from "../../types";
-import { pathSep } from "../render";
+import { pathSep } from "../helpers";
 
 /** Options for rendering fonts. */
 export interface RenderFontOptions {

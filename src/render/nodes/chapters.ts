@@ -10,14 +10,13 @@ import type {
 import type { Step } from "../../pipeline";
 import type { ChapterNode } from "../../types";
 import { setAtPath } from "../../helpers";
-import { IncludeError, makeIncluder, pathSep, RenderError } from "../render";
-import { getRenderView } from "../helpers";
+import { getRenderView, makeIncluder, pathSep } from "../helpers";
+import { IncludeError, RenderError } from "../errors";
 
 /** Options for rendering chapters. */
 export interface RenderChapterOptions<View> {
   /** Create a renderer for the template. */
   createRenderer: CreateRenderer<View>;
-  templatePath: string;
   /** Transform the filename of a chapter. */
   transformFilename?: TransformFilename<ChapterNode>;
   /** Transform the view for rendering. */
@@ -25,23 +24,28 @@ export interface RenderChapterOptions<View> {
 }
 
 /**
- * Make a render step for rendering chapters.
+ * Make a render step for rendering chapters. This step renders each chapter in
+ * the view using the specified template.
+ * @template View The type of the view.
+ * @param path The path to the template.
+ * @param options The options for rendering chapters.
  */
 export function makeRenderChapters<View = RenderView>(
+  path: string,
   options: RenderChapterOptions<View>,
 ): RenderStep<Locked<RenderContext>> {
-  const { createRenderer, templatePath } = options;
+  const { createRenderer } = options;
   const transformFilename = options.transformFilename;
   const transformView = options.transformView;
 
   const renderStep: Step<RenderContext> = async function renderChapters(ctx) {
     const { view, templates, structure, log } = ctx;
-    const template = templates[templatePath];
+    const template = templates[path];
 
     if (!template) {
       const error = new IncludeError(
-        templatePath,
-        `Template not found: ${templatePath}`,
+        path,
+        `Template not found: ${path}`,
       );
 
       log.error(`[chapters] ${error.message}`, { error });
@@ -52,7 +56,7 @@ export function makeRenderChapters<View = RenderView>(
     const render = createRenderer(
       template,
       {
-        filename: templatePath,
+        filename: path,
         includer: makeIncluder(ctx),
       },
     );
@@ -93,7 +97,7 @@ export function makeRenderChapters<View = RenderView>(
   };
 
   // Set the filename of the template - useful for debugging.
-  (renderStep as any).filename = templatePath;
+  (renderStep as RenderStep<Locked<RenderContext>>).filename = path;
 
   return renderStep as RenderStep<Locked<RenderContext>>;
 }

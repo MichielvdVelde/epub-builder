@@ -126,17 +126,13 @@ export function createLog(options?: CreateLogOptions): Log {
   log.warn = (message, meta) => logFn(LogLevel.Warn, message, meta);
   log.error = (message, meta) => logFn(LogLevel.Error, message, meta);
 
-  log.addEventListener = target
-    ? target.addEventListener.bind(
-      target,
-    ) as Log["addEventListener"]
-    : () => {}; // noop when emitting is disabled
+  log.addEventListener = target?.addEventListener.bind(
+    target,
+  ) as Log["addEventListener"] ?? (() => {}); // noop when emitting is disabled
 
-  log.removeEventListener = target
-    ? target.removeEventListener.bind(
-      target,
-    ) as Log["removeEventListener"]
-    : () => {}; // noop when emitting is disabled
+  log.removeEventListener = target?.removeEventListener.bind(
+    target,
+  ) as Log["removeEventListener"] ?? (() => {}); // noop when emitting is disabled
 
   log.items = function* (level?: LogLevel | LogLevel[]) {
     for (const item of log) {

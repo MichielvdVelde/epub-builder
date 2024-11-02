@@ -118,13 +118,37 @@ export type FormatToType<Format> = Format extends ContentFormat.Text ? string
   : never;
 
 /**
- * Get the content from a source.
+ * Get the content from a source. If the source is read, it is saved to the content source,
+ * making it available for future use.
+ *
+ * - If the content is provided, it is returned.
+ * - If the source is a file path, the file is read and the content is returned.
+ *
  * @template Format The content format.
  * @template Type The type of the content.
  * @param source The content source.
  * @param format The content format.
  * @param options The options for getting the content.
  * @throws An error if no content or source is provided.
+ *
+ * @example
+ * ```ts
+ * // Get the content from a source directly.
+ * const source: ContentSource<ContentFormat.Text> = {
+ *   content: "Hello, world!",
+ * };
+ *
+ * const content = await getContent(source, ContentFormat.Text);
+ * console.log(content); // "Hello, world!"
+ *
+ * // Get the content from a file.
+ * const source: ContentSource<ContentFormat.Text> = {
+ *   src: "file.txt",
+ * };
+ *
+ * const content = await getContent(source, ContentFormat.Text);
+ * console.log(content); // "Hello, world!"
+ * ```
  */
 export async function getContent<
   Format extends ContentFormat,
