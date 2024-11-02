@@ -19,20 +19,21 @@ import { createRenderContext, wrapTemplate } from "./render/helpers";
 import { makeRenderChapters } from "./render/nodes/chapters";
 import { makeRenderFonts } from "./render/nodes/fonts";
 import { MetadataBuilder } from "./metadata/builder";
+import { load } from "./load";
 import { render, type RenderOptions } from "mustache";
 
 // Create a renderer.
 // We'll use Mustache to render the templates.
 const createRenderer: CreateRenderer<any> = (template, options) => {
-  const renderer: Renderer<any> = async (view) => {
-    return render(
+  const renderer: Renderer<any> = async (view) =>
+    render(
       template.template,
       view,
       options?.includer,
       options as RenderOptions,
     );
-  };
 
+  // Set the filename of the renderer - used for debugging.
   renderer.filename = options?.filename;
   return renderer;
 };
@@ -45,7 +46,7 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
   makeRenderFile("META-INF/container.xml", options),
   makeRenderFile("OEBPS/content.opf", options),
   makeRenderFile("OEBPS/toc.ncx", options),
-  makeRenderFile<SpineNode[]>("OEBPS/nav.xhtml", {
+  makeRenderFile("OEBPS/nav.xhtml", {
     createRenderer,
     // Transform the view to include only the spine nodes.
     transformView: (ctx) => (ctx.view.spine),
@@ -64,15 +65,17 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
 // Create the metadata.
 // This represents the metadata of the book.
 const metadata = MetadataBuilder.create(
-  "My Book",
-  "John Doe",
-  "This is a book.",
+  "Example Title",
+  "Example Author",
+  "Example Description",
 )
-  .set("publisher", "My Publisher")
   .set("language", "en")
-  .set("identifier", "urn:isbn:1234567890")
-  .set("date", "2022-01-01")
-  .set("rights", "© 2022 John Doe")
+  .set("identifier", "example-identifier")
+  .add("publisher", "Example Publisher")
+  .set("date", "2021-01-01")
+  .set("type", "Text")
+  .set("rights", "CC0")
+  .add("rights", "CC BY")
   .build();
 
 // Create the view.
@@ -80,7 +83,7 @@ const metadata = MetadataBuilder.create(
 const view: RenderView = {
   metadata: {
     id: "metadata",
-    ...{ ...metadata, mType: metadata.type }, // FIX: The node has a `type` property which overlaps with the `type` property of the `Metadata` type.
+    ...{ ...metadata, mType: metadata.type }, // FIXME: The node has a `type` property which overlaps with the `type` property of the `Metadata` type.
     type: NodeType.Metadata,
   },
   chapters: [
@@ -115,15 +118,10 @@ const view: RenderView = {
   images: [],
 };
 
-// Create dummy templates.
-// In a real application, these would be the actual templates.
-const templates: Templates = {
-  "META-INF/container.xml": wrapTemplate("..."),
-  "OEBPS/content.opf": wrapTemplate("..."),
-  "OEBPS/toc.ncx": wrapTemplate("..."),
-  "OEBPS/nav.xhtml": wrapTemplate("..."),
-  "chapter.xhtml": wrapTemplate("..."),
-};
+// Load the templates.
+// The default templates are Mustache templates that are stored in the `templates/default` directory.
+const templateDir = new URL("../templates/default", import.meta.url);
+const templates = await load(templateDir) as Templates;
 
 // Create the context.
 const context = createRenderContext(view, templates);
