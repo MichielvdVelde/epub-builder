@@ -30,3 +30,6 @@ coverage
 # EPUBCheck files
 lib
 artifacts
+
+# Documentation
+docs

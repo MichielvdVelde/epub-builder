@@ -3,6 +3,7 @@
   "name": "epub-builder",
   "version": "0.0.1",
   "description": "A builder for creating EPUB files",
+  "author": "Michiel van der Velde <michiel@michielvdvelde.nl> (https://michielvdvelde.nl)",
   "main": "./dist/exports.js",
   "type": "module",
   "bin": {
@@ -10,9 +11,12 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test-build": "tsc --noEmit",
+    "test": "npm run test-build && jest",
+    "generate-docs": "typedoc --out docs src/exports.ts",
     "test-generate-epub": "node ./scripts/test-generate-epub.js",
-    "epubcheck": "npm run test-generate-epub && node ./scripts/epubcheck.js"
+    "epubcheck": "npm run test-generate-epub && node ./scripts/epubcheck.js",
+    "publish": "npm run build && npm publish"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.5",
@@ -22,6 +26,7 @@
     "jest": "^29.7.0",
     "jest-junit": "^16.0.0",
     "ts-jest": "^29.2.5",
+    "typedoc": "^0.26.11",
     "typescript": "^5.6.3"
   },
   "dependencies": {
