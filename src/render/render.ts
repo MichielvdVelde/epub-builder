@@ -11,7 +11,7 @@ import type {
 } from "../types";
 import type { Step } from "../pipeline";
 import type { EpubStructure } from "../generate/types";
-import type { DeepReadonly, TemplateObject } from "./types";
+import type { DeepReadonly, Includer, TemplateObject } from "./types";
 import { setAtPath } from "../helpers";
 import { createRenderer } from "./renderers/mustache";
 import { createLog, type Log } from "../log";
@@ -138,16 +138,6 @@ export type Locked<Context extends RenderContext> =
 
 /** The path separator for setting values in the structure. */
 export const pathSep = { separator: "/" } as const;
-
-/**
- * An object that includes a template.
- */
-export type IncludeResult = string;
-
-/**
- * An includer for rendering templates.
- */
-export type Includer = (path: string) => IncludeResult;
 
 /**
  * Make an includer for the given context.

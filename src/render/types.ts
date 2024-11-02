@@ -13,10 +13,14 @@ export interface Renderer<View> {
 export type TemplateObject = { template: string };
 
 /**
- * A function that returns the partial template for a given name.
- * @param name The name of the partial template.
+ * An object that includes a template.
  */
-export type Includer = (name: string) => string;
+export type IncludeResult = string;
+
+/**
+ * An includer for rendering templates.
+ */
+export type Includer = (path: string) => IncludeResult;
 
 /**
  * Options for creating a renderer.
