@@ -7,7 +7,7 @@ import { stat } from "fs/promises";
 
 const execPromise = promisify(exec);
 
-const DEFAULT_SRC = "../artifacts/book.epub"; // Relative path to the EPUBCheck JAR file
+const DEFAULT_SRC = "../artifacts/book.epub"; // Relative path to the EPUB file to validate
 const EPUBCHECK_PATH = new URL("../lib/epubcheck.jar", import.meta.url);
 
 /** Error message to display when the EPUBCheck JAR file is not found. */
@@ -16,11 +16,12 @@ const notFoundMessage = "EPUBCheck JAR file not found. " +
 
 /**
  * Checks if the EPUBCheck JAR file exists in the 'lib' directory.
+ * @param {string} path Path to the EPUBCheck JAR file.
  * @returns {Promise<boolean>} Whether the EPUBCheck JAR file exists.
  */
-export async function checkJar() {
+export async function checkJar(path) {
   try {
-    await stat(EPUBCHECK_PATH);
+    await stat(path);
     return true;
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -57,11 +58,11 @@ async function validateEpub(path) {
 
 // Run the script
 const args = process.argv.slice(2);
-const src = args[0] ?? DEFAULT_SRC;
+const src = new URL(args[0] ?? DEFAULT_SRC, import.meta.url);
 
 try {
   // Check if the EPUBCheck JAR file exists
-  const exists = await checkJar();
+  const exists = await checkJar(EPUBCHECK_PATH);
 
   if (!exists) {
     throw new Error(notFoundMessage);
