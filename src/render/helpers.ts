@@ -1,4 +1,4 @@
-import { createLog, type CreateLogOptions } from "../log";
+import { createLog, type Log } from "../log";
 import { Node } from "../types";
 import { IncludeError } from "./errors";
 import type {
@@ -32,7 +32,7 @@ export function makeIncluder(ctx: RenderContext): Includer {
 /** Options for creating a render context. */
 export interface CreateRenderContextOptions {
   /** Options for creating a log. */
-  log?: CreateLogOptions;
+  log?: Log;
 }
 
 /**
@@ -50,11 +50,13 @@ export function createRenderContext(
   templates: Templates,
   options?: CreateRenderContextOptions,
 ): RenderContext {
+  const log = options?.log;
+
   return {
     view,
     templates,
     structure: {},
-    log: createLog(options?.log),
+    log: log ?? createLog(),
   };
 }
 

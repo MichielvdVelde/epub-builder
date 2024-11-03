@@ -21,6 +21,7 @@ import { makeRenderFonts } from "./render/nodes/fonts";
 import { MetadataBuilder } from "./metadata/builder";
 import { load } from "./load";
 import { render, type RenderOptions } from "mustache";
+import { createLog } from "./log";
 
 // Create a renderer.
 // We'll use Mustache to render the templates.
@@ -122,15 +123,33 @@ const view: RenderView = {
 const templateDir = new URL("../templates/default", import.meta.url);
 const templates = await load(templateDir) as Templates;
 
+// Create a log.
+// The log is used to log events during the render pipeline and generation of the EPUB file.
+const log = createLog();
+
+log.addEventListener("log", (event) => {
+  // Log the event to the console.
+  const { level, message, meta } = event.detail;
+  console.log(`[${level}] ${message}`, meta);
+});
+
 // Create the context.
-const context = createRenderContext(view, templates);
+const context = createRenderContext(view, templates, { log });
 
 // Run the render pipeline with the context.
 await renderPipeline.run(context);
 
-// Generate the EPUB file.
+// Create a writer.
+// This writer is used to write the EPUB file to a buffer.
+// Al writers supported by @zip.js/zip.js are supported.
 const writer = new Uint8ArrayWriter();
-const buffer = await generateEpub(writer, context.structure as EpubStructure);
+
+// Generate the EPUB file.
+const buffer = await generateEpub(
+  writer,
+  context.structure as EpubStructure,
+  { log },
+);
 
 // Example of how to save the EPUB file to the Origin Private File System (OPFS) in a web browser.
 // OPFS is a new web standard that allows web applications to store files in a private file system.

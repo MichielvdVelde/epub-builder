@@ -114,10 +114,11 @@ export function createLog(options?: CreateLogOptions): Log {
   const target = emit ? new EventTarget() : null; // Only create an event target when emitting is enabled
 
   const logFn: Log["log"] = (level, message, meta) => {
-    log.push({ level, message, meta, timestamp: Date.now() });
+    const timestamp = Date.now();
+    log.push({ level, message, meta, timestamp });
 
     if (target) {
-      const detail = { level, message, meta };
+      const detail = { level, message, meta, timestamp };
       target.dispatchEvent(new CustomEvent(level, { detail }));
       target.dispatchEvent(new CustomEvent("log", { detail }));
     }
