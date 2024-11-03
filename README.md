@@ -23,32 +23,46 @@ free to open an issue or a pull request.
 These are some of the features that EPUB Builder aims to provide:
 
 - 📚 **Complete EPUB Generation**: Automatically generates EPUB files with all
-  required structure and metadata, ensuring compatibility with EPUB readers.
-- 🧩 **Modular Pipeline Architecture**: Uses a step-by-step pipeline approach,
-  making it easy to add, remove, or rearrange processing steps.
-- 📄 **File System Agnostic**: Supports both direct input and file paths for
-  content and templates, allowing for flexible content sourcing.
-- 🛠️ **Flexible Template Rendering**: Renders core EPUB files (`content.opf`,
-  `toc.ncx`, `nav.xhtml`, etc.) using customizable templates.
-- 📝 **Rich Metadata Support**: Allows inclusion of detailed metadata such as
-  title, author, description, and more for complete book information.
-- 📖 **Hierarchical Chapter Management**: Supports multi-level chapters with
-  automatic ordering for organized book navigation.
-- 🗂️ **Customizable Content Structure**: Easily configure and nest various file
-  types (CSS, fonts, images, audio) in the EPUB’s internal structure.
-- 🔍 **Content Type Safety**: Enforces content type safety with TypeScript
-  interfaces for each node type (e.g., Chapter, Image, Font).
-- 🔄 **Dynamic Content Source Handling**: Supports content from both direct
-  input and file paths, handling text and binary data seamlessly.
-- 🧪 **Error Handling and Logging**: Detailed logging and custom error types for
-  clear debugging and error tracking throughout the pipeline.
-- 💾 **EPUB-Compliant ZIP Archiving**: Generates ZIP-compressed EPUB files with
-  correct directory layout, mimetype, and file order.
-- 🚀 **Web and Node.js Compatibility**: Designed to work in both Node.js and
-  modern web environments, including support for the Origin Private File System
-  (OPFS).
-- 🔧 **Easy Integration**: Simple API for defining content and templates, making
-  it easy to embed in other applications or scripts.
+  required structure and metadata, ensuring compatibility with standard EPUB
+  readers.
+- 🔄 **Modular Pipeline Architecture**: Uses a flexible, step-based pipeline for
+  rendering, allowing easy customization, addition, or removal of specific
+  processing steps.
+- 📝 **Customizable Template Rendering**: Renders core EPUB files (e.g.,
+  `content.opf`, `toc.ncx`) using popular templating engines like Mustache or
+  EJS, with the option to switch or add other engines.
+- 🧩 **Data Transformation Per Step**: Customize the view for each rendering
+  step, isolating only the relevant data (e.g., `spine` nodes for navigation),
+  which improves performance and focus.
+- 📋 **Comprehensive Metadata Management**: `MetadataBuilder` allows easy
+  creation of structured metadata fields such as title, author, language,
+  publisher, and identifiers, with validation for EPUB compliance.
+- 🗂️ **Organized Content Structure**: Structured types for chapters, fonts,
+  images, and CSS ensure consistency, extensibility, and type safety throughout
+  the EPUB.
+- ✨ **Dynamic Template Loading**: Load customizable templates from a specified
+  directory, allowing flexibility in defining the look and layout of the EPUB’s
+  content.
+- 🖋️ **Enhanced Logging System**: Integrated logging with adjustable levels
+  (info, warn, error) and optional metadata, providing real-time visibility and
+  debugging information for each stage of the rendering and packaging process.
+- 👀 **Event-Driven Logging**: Logs can emit events, allowing developers to set
+  up listeners for custom logging behavior, monitor each step of the pipeline,
+  and troubleshoot issues efficiently.
+- 🛠️ **Error Handling and Debugging**: Custom error types (`IncludeError`,
+  `RenderError`) and detailed logging messages simplify troubleshooting by
+  pinpointing errors in specific templates or processing steps.
+- 📦 **Standards-Compliant EPUB Packaging**: Uses `@zip.js/zip.js` to compress
+  and structure EPUB files in a ZIP format, adhering to EPUB’s directory and
+  file organization requirements.
+- 🔧 **EPUB File Compression Options**: Control compression levels and file
+  order during packaging for optimal EPUB file sizes and compatibility.
+- 🌐 **Browser and Node.js Compatibility**: Designed for use in both Node.js and
+  web environments, including support for the Origin Private File System (OPFS)
+  for secure, browser-based storage.
+- 💾 **Web-Based File Saving with OPFS**: Save generated EPUB files securely in
+  the browser’s private file system, offering persistent, private storage for
+  web-based e-reader applications.
 
 ## Concept
 
