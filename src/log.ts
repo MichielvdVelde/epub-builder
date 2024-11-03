@@ -12,6 +12,8 @@ export enum LogLevel {
 export interface LogItem {
   /** The level of the log item. */
   level: LogLevel;
+  /** The timestamp of the log item. */
+  timestamp: number;
   /** The message of the log item. */
   message: string;
   /** The metadata of the log item. */
@@ -112,12 +114,12 @@ export function createLog(options?: CreateLogOptions): Log {
   const target = emit ? new EventTarget() : null; // Only create an event target when emitting is enabled
 
   const logFn: Log["log"] = (level, message, meta) => {
-    log.push({ level, message, meta });
+    log.push({ level, message, meta, timestamp: Date.now() });
 
     if (target) {
       const detail = { level, message, meta };
-      target.dispatchEvent(new CustomEvent("log", { detail }));
       target.dispatchEvent(new CustomEvent(level, { detail }));
+      target.dispatchEvent(new CustomEvent("log", { detail }));
     }
   };
 
