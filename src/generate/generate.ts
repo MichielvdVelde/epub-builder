@@ -2,6 +2,7 @@ import type { EntryObject, EntryType, EpubStructure } from "./types";
 import type { Log } from "../log";
 import { createReader, isEntry, isEntryObject } from "./helpers";
 import {
+  type EntryMetaData,
   TextReader,
   type Writer,
   type ZipReaderConstructorOptions,
@@ -31,8 +32,8 @@ async function addMimetype<Type>(
   writer: ZipWriter<Type>,
   mimetype = "application/epub+zip",
   options?: AddMimeTypeOptions,
-) {
-  await writer.add("mimetype", new TextReader(mimetype), {
+): Promise<EntryMetaData> {
+  return writer.add("mimetype", new TextReader(mimetype), {
     ...options,
     level: 0,
     keepOrder: true,
@@ -84,12 +85,14 @@ export async function addEntry<Type>(
   filename: string,
   entry: EntryType,
   options?: AddEntryOptions,
-): Promise<void> {
+): Promise<EntryMetaData> {
   const log = options?.log;
+
+  let meta: EntryMetaData | undefined;
 
   try {
     const reader = createReader(entry);
-    const meta = await writer.add(filename, reader, options);
+    meta = await writer.add(filename, reader, options);
 
     // Log the added entry.
     log?.info(`Added entry "${filename}".`, { meta });
@@ -104,6 +107,8 @@ export async function addEntry<Type>(
 
     throw err;
   }
+
+  return meta;
 }
 
 /** The options for the EPUB generator. */
