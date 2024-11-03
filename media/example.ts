@@ -11,7 +11,7 @@ import type {
 } from "./render/types";
 import type { EpubStructure } from "./generate/types";
 import { Uint8ArrayWriter } from "@zip.js/zip.js";
-import { NodeType, SpineNode } from "./types";
+import { NodeType } from "./types";
 import { createPipeline } from "./pipeline";
 import { makeRenderFile } from "./render/render";
 import { generateEpub } from "./generate/generate";
