@@ -15,32 +15,46 @@ free to open an issue or a pull request.</p>
 <a id="md:features" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Features<a href="#md:features" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>These are some of the features that EPUB Builder aims to provide:</p>
 <ul>
 <li>📚 <strong>Complete EPUB Generation</strong>: Automatically generates EPUB files with all
-required structure and metadata, ensuring compatibility with EPUB readers.</li>
-<li>🧩 <strong>Modular Pipeline Architecture</strong>: Uses a step-by-step pipeline approach,
-making it easy to add, remove, or rearrange processing steps.</li>
-<li>📄 <strong>File System Agnostic</strong>: Supports both direct input and file paths for
-content and templates, allowing for flexible content sourcing.</li>
-<li>🛠️ <strong>Flexible Template Rendering</strong>: Renders core EPUB files (<code>content.opf</code>,
-<code>toc.ncx</code>, <code>nav.xhtml</code>, etc.) using customizable templates.</li>
-<li>📝 <strong>Rich Metadata Support</strong>: Allows inclusion of detailed metadata such as
-title, author, description, and more for complete book information.</li>
-<li>📖 <strong>Hierarchical Chapter Management</strong>: Supports multi-level chapters with
-automatic ordering for organized book navigation.</li>
-<li>🗂️ <strong>Customizable Content Structure</strong>: Easily configure and nest various file
-types (CSS, fonts, images, audio) in the EPUB’s internal structure.</li>
-<li>🔍 <strong>Content Type Safety</strong>: Enforces content type safety with TypeScript
-interfaces for each node type (e.g., Chapter, Image, Font).</li>
-<li>🔄 <strong>Dynamic Content Source Handling</strong>: Supports content from both direct
-input and file paths, handling text and binary data seamlessly.</li>
-<li>🧪 <strong>Error Handling and Logging</strong>: Detailed logging and custom error types for
-clear debugging and error tracking throughout the pipeline.</li>
-<li>💾 <strong>EPUB-Compliant ZIP Archiving</strong>: Generates ZIP-compressed EPUB files with
-correct directory layout, mimetype, and file order.</li>
-<li>🚀 <strong>Web and Node.js Compatibility</strong>: Designed to work in both Node.js and
-modern web environments, including support for the Origin Private File System
-(OPFS).</li>
-<li>🔧 <strong>Easy Integration</strong>: Simple API for defining content and templates, making
-it easy to embed in other applications or scripts.</li>
+required structure and metadata, ensuring compatibility with standard EPUB
+readers.</li>
+<li>🔄 <strong>Modular Pipeline Architecture</strong>: Uses a flexible, step-based pipeline for
+rendering, allowing easy customization, addition, or removal of specific
+processing steps.</li>
+<li>📝 <strong>Customizable Template Rendering</strong>: Renders core EPUB files (e.g.,
+<code>content.opf</code>, <code>toc.ncx</code>) using popular templating engines like Mustache or
+EJS, with the option to switch or add other engines.</li>
+<li>🧩 <strong>Data Transformation Per Step</strong>: Customize the view for each rendering
+step, isolating only the relevant data (e.g., <code>spine</code> nodes for navigation),
+which improves performance and focus.</li>
+<li>📋 <strong>Comprehensive Metadata Management</strong>: <code>MetadataBuilder</code> allows easy
+creation of structured metadata fields such as title, author, language,
+publisher, and identifiers, with validation for EPUB compliance.</li>
+<li>🗂️ <strong>Organized Content Structure</strong>: Structured types for chapters, fonts,
+images, and CSS ensure consistency, extensibility, and type safety throughout
+the EPUB.</li>
+<li>✨ <strong>Dynamic Template Loading</strong>: Load customizable templates from a specified
+directory, allowing flexibility in defining the look and layout of the EPUB’s
+content.</li>
+<li>🖋️ <strong>Enhanced Logging System</strong>: Integrated logging with adjustable levels
+(info, warn, error) and optional metadata, providing real-time visibility and
+debugging information for each stage of the rendering and packaging process.</li>
+<li>👀 <strong>Event-Driven Logging</strong>: Logs can emit events, allowing developers to set
+up listeners for custom logging behavior, monitor each step of the pipeline,
+and troubleshoot issues efficiently.</li>
+<li>🛠️ <strong>Error Handling and Debugging</strong>: Custom error types (<code>IncludeError</code>,
+<code>RenderError</code>) and detailed logging messages simplify troubleshooting by
+pinpointing errors in specific templates or processing steps.</li>
+<li>📦 <strong>Standards-Compliant EPUB Packaging</strong>: Uses <code>@zip.js/zip.js</code> to compress
+and structure EPUB files in a ZIP format, adhering to EPUB’s directory and
+file organization requirements.</li>
+<li>🔧 <strong>EPUB File Compression Options</strong>: Control compression levels and file
+order during packaging for optimal EPUB file sizes and compatibility.</li>
+<li>🌐 <strong>Browser and Node.js Compatibility</strong>: Designed for use in both Node.js and
+web environments, including support for the Origin Private File System (OPFS)
+for secure, browser-based storage.</li>
+<li>💾 <strong>Web-Based File Saving with OPFS</strong>: Save generated EPUB files securely in
+the browser’s private file system, offering persistent, private storage for
+web-based e-reader applications.</li>
 </ul>
 <a id="md:concept" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Concept<a href="#md:concept" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>Building an EPUB consists of two steps.</p>
 <ol>
