@@ -32,18 +32,16 @@ export interface EpubStructure {
   /** The OEBPS directory of the EPUB book. */
   OEBPS: {
     /**
-     * The content.opf file. It contains the metadata and manifest of the EPUB book.
-     * @see https://www.w3.org/publishing/epub3/epub-packages.html#sec-package-metadata
+     * The `content.opf` file. It contains the metadata and manifest of the EPUB book.
+     * @see https://www.w3.org/TR/epub-33/#dfn-epub-content-document
      */
     "content.opf": string;
     /**
-     * The nav.xhtml file. It contains the navigation of the EPUB book.
-     * @see https://www.w3.org/publishing/epub3/epub-packages.html#sec-xhtml-nav
+     * The `toc.ncx` file. It contains the table of contents of the EPUB book. This file is included for compatibility with EPUB 2.
      */
     "toc.ncx": string;
     /**
-     * The nav.xhtml file. It contains the navigation of the EPUB book.
-     * @see https://www.w3.org/publishing/epub3/epub-packages.html#sec-xhtml-nav
+     * The `nav.xhtml` file. It contains the navigation of the EPUB book. This file is included for compatibility with EPUB 3.
      */
     "nav.xhtml": string;
   } & EntryObject;
