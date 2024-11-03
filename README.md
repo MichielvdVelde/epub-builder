@@ -43,9 +43,9 @@ These are some of the features that EPUB Builder aims to provide:
 - ✨ **Dynamic Template Loading**: Load customizable templates from a specified
   directory, allowing flexibility in defining the look and layout of the EPUB’s
   content.
-- 🖋️ **Enhanced Logging System**: Integrated logging with adjustable levels
-  (info, warn, error) and optional metadata, providing real-time visibility and
-  debugging information for each stage of the rendering and packaging process.
+- 🖋️ **Logging System**: Integrated logging with adjustable levels (info, warn,
+  error) and optional metadata, providing real-time visibility and debugging
+  information for each stage of the rendering and packaging process.
 - 👀 **Event-Driven Logging**: Logs can emit events, allowing developers to set
   up listeners for custom logging behavior, monitor each step of the pipeline,
   and troubleshoot issues efficiently.
@@ -60,9 +60,6 @@ These are some of the features that EPUB Builder aims to provide:
 - 🌐 **Browser and Node.js Compatibility**: Designed for use in both Node.js and
   web environments, including support for the Origin Private File System (OPFS)
   for secure, browser-based storage.
-- 💾 **Web-Based File Saving with OPFS**: Save generated EPUB files securely in
-  the browser’s private file system, offering persistent, private storage for
-  web-based e-reader applications.
 
 ## Concept
 
