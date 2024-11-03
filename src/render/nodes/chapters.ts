@@ -41,7 +41,6 @@ export function makeRenderChapters<View = RenderView>(
   const renderStep: Step<RenderContext> = async function renderChapters(ctx) {
     const { view, templates, structure, log } = ctx;
     const template = templates[path];
-    let chapterCount = 0;
 
     if (!template) {
       const error = new IncludeError(
@@ -62,6 +61,22 @@ export function makeRenderChapters<View = RenderView>(
       },
     );
 
+    let chapterCount = 0;
+
+    /** Render the given chapters. */
+    const renderChapters = async (chapters: ChapterNode[], depth = -1) => {
+      // Sort chapters so they are rendered in the correct order.
+      const sortedChapters = [...chapters].sort(sortChapters);
+
+      for (let j = 1; j <= sortedChapters.length; j++) {
+        chapterCount++;
+
+        // Render the chapter.
+        await renderChapter(sortedChapters[j], j, depth + 1);
+      }
+    };
+
+    /** Render a chapter and its children. */
     const renderChapter = async (
       chapter: ChapterNode,
       i: number,
@@ -74,12 +89,11 @@ export function makeRenderChapters<View = RenderView>(
         const content = await render(renderView);
         const filename = transformFilename?.(chapter, i) ??
             depth > 0
-          ? `OEBS/chapter-${depth + 1}-${i}.xhtml`
+          ? `OEBS/chapter-${depth}-${i}.xhtml`
           : `OEBS/chapter-${i}.xhtml`;
 
         // Set the rendered content in the structure.
         setAtPath(structure, filename, content, pathSep);
-
         i++;
       } catch (err) {
         const error = new RenderError(
@@ -93,40 +107,13 @@ export function makeRenderChapters<View = RenderView>(
       }
 
       if (chapter.children?.length) {
-        // Order children so they are rendered in the correct order.
-        const children = [...chapter.children].sort(sortChapters);
-
         // Render each child chapter.
-        for (let j = 1; j <= children.length; j++) {
-          chapterCount++;
-          const child = children[j];
-
-          // Render the child chapter.
-          await renderChapter(child, j, depth + 1);
-        }
-      }
-
-      // Order chapters so they are rendered in the correct order.
-      const chapters = [...view.chapters].sort(sortChapters);
-
-      // Render each chapter.
-      for (let i = 1; i <= chapters.length; i++) {
-        chapterCount++;
-        const chapter = chapters[i];
-
-        // Render the chapter.
-        await renderChapter(chapter, i);
+        await renderChapters(chapter.children, depth + 1);
       }
     };
 
     // Render each chapter.
-    for (let i = 1; i <= view.chapters.length; i++) {
-      chapterCount++;
-      const chapter = view.chapters[i];
-
-      // Render the chapter.
-      await renderChapter(chapter, i);
-    }
+    await renderChapters(view.chapters);
 
     // Log the number of chapters rendered.
     log.info(`[chapters] Rendered ${chapterCount} chapters.`, {
