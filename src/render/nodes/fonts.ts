@@ -37,12 +37,11 @@ export function makeRenderFonts(
       const font = fonts[i];
 
       try {
-        // Get the content of the font.
         const content = await getContent(font, ContentFormat.ArrayBuffer);
-
-        // Add the font to the structure.
         const filename = options?.transformFilename?.(font, i) ??
           `OEBPS/fonts/${font.name}`;
+
+        // Add the font to the structure.
         setAtPath(structure, filename, content, pathSep);
       } catch (err) {
         const error = new AggregateError(

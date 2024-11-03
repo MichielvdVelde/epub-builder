@@ -13,6 +13,9 @@ import { setAtPath } from "../../helpers";
 import { getRenderView, makeIncluder, pathSep } from "../helpers";
 import { IncludeError, RenderError } from "../errors";
 
+/** Sort chapters by their order. */
+const sortChapters = (a: ChapterNode, b: ChapterNode) => a.order - b.order;
+
 /** Options for rendering chapters. */
 export interface RenderChapterOptions<View> {
   /** Create a renderer for the template. */
@@ -107,15 +110,13 @@ export function makeRenderChapters<View = RenderView>(
       }
 
       if (chapter.children?.length) {
-        // Render each child chapter.
         await renderChapters(chapter.children, depth + 1);
       }
     };
 
-    // Render each chapter.
+    // Render the chapters in the view.
     await renderChapters(view.chapters);
 
-    // Log the number of chapters rendered.
     log.info(`[chapters] Rendered ${chapterCount} chapters.`, {
       chapters: ctx.view.chapters,
       count: chapterCount,
@@ -127,5 +128,3 @@ export function makeRenderChapters<View = RenderView>(
 
   return renderStep as RenderStep<Locked<RenderContext>>;
 }
-
-const sortChapters = (a: ChapterNode, b: ChapterNode) => a.order - b.order;

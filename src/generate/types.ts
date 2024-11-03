@@ -20,7 +20,7 @@ export type EntryType = string | Uint8Array;
  */
 export interface EpubStructure {
   /** The mimetype of the EPUB book. */
-  mimetype: string;
+  mimetype?: string;
   /** The META-INF directory of the EPUB book. */
   META_INF: {
     /**
