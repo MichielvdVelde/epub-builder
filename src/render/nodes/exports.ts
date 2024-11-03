@@ -1,2 +1,4 @@
-export * as chapters from "./chapters";
-export * as fonts from "./fonts";
+export * from "./chapters";
+export * from "./css";
+export * from "./images";
+export * from "./fonts";

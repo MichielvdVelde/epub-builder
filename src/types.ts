@@ -100,6 +100,8 @@ export interface SpineNode
  */
 export interface CssNode extends Node, ContentSource<ContentFormat.Text> {
   type: NodeType.Css;
+  /** The name of the CSS file. */
+  name?: string;
 }
 
 /**
@@ -120,6 +122,8 @@ export interface FontNode
 export interface ImageNode
   extends Node, ContentSource<ContentFormat.ArrayBuffer> {
   type: NodeType.Image;
+  /** The name of the image. */
+  name?: string;
   /** The format of the image. */
   format: MediaFormat;
   /** The alt text of the image. */
