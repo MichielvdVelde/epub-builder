@@ -50,7 +50,7 @@ export type AddEntriesOptions = ZipWriterAddDataOptions;
  * @param options The options for adding the entries.
  * @param prefix The prefix for the entries.
  */
-async function addEntries<Type>(
+export async function addEntries<Type>(
   writer: ZipWriter<Type>,
   entries: EntryObject<EntryType>,
   options?: AddEntriesOptions,
@@ -79,7 +79,7 @@ export interface AddEntryOptions extends ZipWriterAddDataOptions {
  * @param entry The entry to add.
  * @param options The options for adding the entry.
  */
-async function addEntry<Type>(
+export async function addEntry<Type>(
   writer: ZipWriter<Type>,
   filename: string,
   entry: EntryType,
@@ -151,7 +151,7 @@ export interface GenerateOptions extends
  *   },
  * };
  *
- * // Generate an EPUB book and write it to the file.
+ * // Generate the EPUB book.
  * const blob = await generateEpub(writer, structure);
  * ```
  */
