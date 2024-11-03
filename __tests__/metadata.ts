@@ -4,11 +4,10 @@ import { MetadataBuilder } from "../src/metadata/builder";
 // More comprehensive tests should be added
 
 test("metadata builder", () => {
-  const metadata = MetadataBuilder.create(
-    "Test Title",
-    "Test Author",
-    "Test Description",
-  )
+  const metadata = MetadataBuilder.create()
+    .set("title", "Test Title")
+    .set("author", "Test Author")
+    .set("description", "Test Description")
     .set("language", "en")
     .set("identifier", "test-identifier")
     .add("publisher", "Test Publisher")
