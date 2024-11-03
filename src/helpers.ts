@@ -3,7 +3,7 @@ import {
   type ContentSource,
   type GetContentOptions,
 } from "./types";
-import { ReadFile } from "./load";
+import type { ReadFile } from "./load";
 
 /**
  * Options for setting a value at a path.

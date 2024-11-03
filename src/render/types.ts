@@ -136,7 +136,10 @@ export type TransformFilename<N extends Node> = (
  * @template View The view type.
  * @param ctx The render context.
  */
-export type TransformView<View> = (ctx: RenderContext) => View;
+export type TransformView<View, N extends Node = Node> = (
+  ctx: RenderContext,
+  node?: N,
+) => View;
 
 /**
  * A locked render context.

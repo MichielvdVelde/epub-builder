@@ -25,12 +25,6 @@ export type LogMeta = Record<string, unknown>;
  * A log. This is an array of log items with additional methods for logging.
  */
 export interface Log extends Array<LogItem> {
-  /** Log an informational message. */
-  info(message: string, meta?: LogMeta): void;
-  /** Log a warning message. */
-  warn(message: string, meta?: LogMeta): void;
-  /** Log an error message. */
-  error(message: string, meta?: LogMeta): void;
   /**
    * Log a message with the given level.
    * @param level The level of the log message.
@@ -42,6 +36,12 @@ export interface Log extends Array<LogItem> {
     message: string,
     meta?: LogMeta,
   ): void;
+  /** Log an informational message. */
+  info(message: string, meta?: LogMeta): void;
+  /** Log a warning message. */
+  warn(message: string, meta?: LogMeta): void;
+  /** Log an error message. */
+  error(message: string, meta?: LogMeta): void;
   /** Add an event listener for log events. */
   addEventListener(
     type: "log",
@@ -126,13 +126,13 @@ export function createLog(options?: CreateLogOptions): Log {
   log.warn = (message, meta) => logFn(LogLevel.Warn, message, meta);
   log.error = (message, meta) => logFn(LogLevel.Error, message, meta);
 
-  log.addEventListener = target?.addEventListener.bind(
-    target,
-  ) as Log["addEventListener"] ?? (() => {}); // noop when emitting is disabled
+  const noop = () => {}; // noop when emitting is disabled
 
-  log.removeEventListener = target?.removeEventListener.bind(
-    target,
-  ) as Log["removeEventListener"] ?? (() => {}); // noop when emitting is disabled
+  log.addEventListener = target?.addEventListener
+    .bind(target) as Log["addEventListener"] ?? noop;
+
+  log.removeEventListener = target?.removeEventListener
+    .bind(target) as Log["removeEventListener"] ?? noop;
 
   log.items = function* (level?: LogLevel | LogLevel[]) {
     for (const item of log) {

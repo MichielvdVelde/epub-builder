@@ -1,4 +1,5 @@
 import { createLog, type CreateLogOptions } from "../log";
+import { Node } from "../types";
 import { IncludeError } from "./errors";
 import type {
   Includer,
@@ -66,18 +67,39 @@ export const wrapTemplate = (template: string): TemplateObject => ({
 });
 
 /**
- * Get the render view.
- *
- * - If a transform function is provided, it is called with the render context.
- * - Otherwise, the view is returned as is.
- *
- * @template View The type of the view.
+ * Get the render view from the context.
+ * @template View The view type.
+ * @template N The node type.
  * @param ctx The render context.
- * @param transform The transform function for the view.
+ * @param transform The transform function.
  */
-export function getRenderView<View = RenderView>(
+export function getRenderView<View = RenderView, N extends Node = Node>(
   ctx: RenderContext,
-  transform?: TransformView<View>,
+  transform?: TransformView<View, N>,
+): View;
+/**
+ * Get the render view from the context.
+ * @template View The view type.
+ * @template N The node type.
+ * @param ctx The render context.
+ * @param node The node to transform.
+ * @param transform The transform function.
+ */
+export function getRenderView<View = RenderView, N extends Node = Node>(
+  ctx: RenderContext,
+  node: N,
+  transform?: TransformView<View, N>,
+): View;
+export function getRenderView<View = RenderView, N extends Node = Node>(
+  ctx: RenderContext,
+  nodeOrTransform: N | TransformView<View, N>,
+  transform?: TransformView<View, N>,
 ): View {
-  return transform?.(ctx) ?? (ctx.view as View);
+  const node = typeof nodeOrTransform === "function"
+    ? undefined
+    : nodeOrTransform;
+  const transformFn = typeof nodeOrTransform === "function"
+    ? nodeOrTransform
+    : transform;
+  return transformFn?.(ctx, node) ?? (ctx.view as View);
 }
