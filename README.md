@@ -43,20 +43,15 @@ These are some of the features that EPUB Builder aims to provide:
 - ✨ **Dynamic Template Loading**: Load customizable templates from a specified
   directory, allowing flexibility in defining the look and layout of the EPUB’s
   content.
-- 🖋️ **Logging System**: Integrated logging with adjustable levels (info, warn,
-  error) and optional metadata, providing real-time visibility and debugging
+- 🖋️ **Logging**: Integrated logging with adjustable levels (info, warn, error)
+  and optional metadata, providing real-time visibility and debugging
   information for each stage of the rendering and packaging process.
-- 👀 **Event-Driven Logging**: Logs can emit events, allowing developers to set
-  up listeners for custom logging behavior, monitor each step of the pipeline,
-  and troubleshoot issues efficiently.
 - 🛠️ **Error Handling and Debugging**: Custom error types (`IncludeError`,
   `RenderError`) and detailed logging messages simplify troubleshooting by
   pinpointing errors in specific templates or processing steps.
 - 📦 **Standards-Compliant EPUB Packaging**: Uses `@zip.js/zip.js` to compress
   and structure EPUB files in a ZIP format, adhering to EPUB’s directory and
   file organization requirements.
-- 🔧 **EPUB File Compression Options**: Control compression levels and file
-  order during packaging for optimal EPUB file sizes and compatibility.
 - 🌐 **Browser and Node.js Compatibility**: Designed for use in both Node.js and
   web environments, including support for the Origin Private File System (OPFS)
   for secure, browser-based storage.
@@ -73,9 +68,6 @@ Building an EPUB consists of two steps.
 
 ## Installation
 
-> **Note:** This library is not yet published to npm. You can install it
-> directly from GitHub using npm.
-
 Clone the repository and install dependencies using npm:
 
 ```sh
@@ -85,8 +77,6 @@ npm install
 ```
 
 ## Example
-
-> **Note:** This example is not yet functional.
 
 See [src/example.ts](src/example.ts) for an example of how to use this library.
 
