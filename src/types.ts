@@ -1,6 +1,4 @@
-import { FormatToType } from "./helpers";
-import type { ReadFile } from "./load";
-import { Metadata } from "./metadata/types";
+import type { Metadata } from "./metadata/types";
 
 /**
  * A path to a file or URL.
@@ -179,30 +177,33 @@ export interface ContentSource<
    * If `content` is provided, this property is ignored.
    */
   src?: PathLike;
+  /**
+   * Defer loading the content.
+   *
+   * When enabled, the content is not loaded immediately, but only when generating the book.
+   * This is useful for large files that are not needed until the book is generated, such as images.
+   *
+   * When using a deferred content source, a file streamer returning a `ReadableStream<Uin8Array>` is expected
+   * by {@link generateEpub}.
+   */
+  defer?: boolean;
 }
 
 /**
  * A deferred content source.
  *
- * @template Format The format of the content.
- * @template Type The type of the content.
+ * A deferred content source is used to defer loading the content until the book is generated.
+ * See {@link ContentSource.defer}.
  */
-export interface DeferredContentSource<Format extends ContentFormat> {
+export interface DeferredContentSource {
   /** The file path or URL of the source. */
   src: PathLike;
-  /** The format of the content. */
-  format: Format;
 }
 
 /**
- * Options for getting the content.
+ * Content format to type mapping.
+ * @template Format The content format.
  */
-export interface GetContentOptions<Type = unknown> {
-  /**
-   * The function to read a file.
-   * @template T The type of the content.
-   * @param src The file path.
-   * @returns The content of the file.
-   */
-  readFile?: ReadFile<Type>;
-}
+export type FormatToType<Format> = Format extends ContentFormat.Text ? string
+  : Format extends ContentFormat.ArrayBuffer ? ArrayBuffer
+  : never;

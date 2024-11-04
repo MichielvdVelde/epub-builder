@@ -1,5 +1,5 @@
 import type { TextReader, Uint8ArrayReader } from "@zip.js/zip.js";
-import { ContentFormat, DeferredContentSource, PathLike } from "../types";
+import type { DeferredContentSource, PathLike } from "../types";
 
 /**
  * An entry object in the ZIP archive. The key is the file path and the value is the entry.
@@ -12,7 +12,7 @@ export type EntryObject<T = unknown> = { [key: string]: Entry<T> };
 export type Entry<T = unknown> =
   | T
   | EntryObject<T>
-  | DeferredContentSource<ContentFormat>;
+  | DeferredContentSource;
 
 /**
  * The type of an entry in the ZIP archive.
@@ -20,7 +20,7 @@ export type Entry<T = unknown> =
 export type EntryType =
   | string
   | Uint8Array
-  | DeferredContentSource<ContentFormat>;
+  | DeferredContentSource;
 
 /**
  * The structure of an EPUB book.
@@ -57,7 +57,7 @@ export interface EpubStructure {
 /** The reader type for the entry. */
 export type ReaderType<T extends EntryType> = T extends string ? TextReader
   : T extends Uint8Array ? Uint8ArrayReader
-  : T extends DeferredContentSource<ContentFormat> ? ReadableStream<Uint8Array>
+  : T extends DeferredContentSource ? ReadableStream<Uint8Array>
   : never;
 
 /**

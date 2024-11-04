@@ -1,8 +1,4 @@
-import {
-  ContentFormat,
-  type ContentSource,
-  type GetContentOptions,
-} from "./types";
+import { ContentFormat, type ContentSource, type FormatToType } from "./types";
 import type { ReadFile } from "./load";
 
 /**
@@ -110,12 +106,17 @@ export function getAtPath<T = unknown>(
 }
 
 /**
- * Content format to type mapping.
- * @template Format The content format.
+ * Options for getting the content.
  */
-export type FormatToType<Format> = Format extends ContentFormat.Text ? string
-  : Format extends ContentFormat.ArrayBuffer ? ArrayBuffer
-  : never;
+export interface GetContentOptions<Type = unknown> {
+  /**
+   * The function to read a file.
+   * @template T The type of the content.
+   * @param src The file path.
+   * @returns The content of the file.
+   */
+  readFile?: ReadFile<Type>;
+}
 
 /**
  * Get the content from a source. If the source is read, it is saved to the content source,
@@ -160,6 +161,12 @@ export async function getContent<
 ): Promise<Type> {
   if (source.content) {
     return source.content;
+  } else if (source.defer) {
+    if (!source.src) {
+      throw new TypeError("Deferred content source requires a source.");
+    }
+
+    return { src: source.src, format } as Type;
   } else if (source.src) {
     let readFile = options?.readFile;
 

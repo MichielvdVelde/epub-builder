@@ -1,4 +1,3 @@
-import { ContentFormat, DeferredContentSource, PathLike } from "../types";
 import type {
   Entry,
   EntryObject,
@@ -6,6 +5,7 @@ import type {
   ReaderType,
   StreamFile,
 } from "./types";
+import type { DeferredContentSource } from "../types";
 import { TextReader, Uint8ArrayReader } from "@zip.js/zip.js";
 
 /** Check if the entry is an entry object. */
@@ -19,9 +19,9 @@ export function isEntry(entry: unknown): entry is Entry {
 }
 
 /** Check if the source is a deferred content source. */
-export function isDeferredContentSource<Format extends ContentFormat>(
+export function isDeferredContentSource(
   source: unknown,
-): source is DeferredContentSource<Format> {
+): source is DeferredContentSource {
   return typeof source === "object" && source !== null && "src" in source;
 }
 
