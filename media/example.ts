@@ -15,8 +15,10 @@ import { NodeType } from "./types";
 import { createPipeline } from "./pipeline";
 import { makeRenderFile } from "./render/render";
 import { generateEpub } from "./generate/generate";
-import { createRenderContext, wrapTemplate } from "./render/helpers";
+import { createRenderContext } from "./render/helpers";
 import { makeRenderChapters } from "./render/nodes/chapters";
+import { makeRenderCss } from "./render/nodes/css";
+import { makeRenderImages } from "./render/nodes/images";
 import { makeRenderFonts } from "./render/nodes/fonts";
 import { MetadataBuilder } from "./metadata/builder";
 import { load } from "./load";
@@ -44,6 +46,19 @@ const options = { createRenderer };
 // Create the render pipeline.
 // This pipeline generates the structure of the book.
 const renderPipeline = createPipeline<Locked<RenderContext>>(
+  // Render the fonts so they're available in the structure.
+  makeRenderFonts({
+    transformFilename: (font) => `OEBPS/fonts/${font.name}`,
+  }),
+  // Render the CSS files so they're available in the structure.
+  makeRenderCss({
+    transformFilename: (css) => `OEBPS/css/${css.name}`,
+  }),
+  // Render the images so they're available in the structure.
+  makeRenderImages({
+    transformFilename: (image) => `OEBPS/images/${image.name}`,
+  }),
+  // Render the files required by the EPUB specification.
   makeRenderFile("META-INF/container.xml", options),
   makeRenderFile("OEBPS/content.opf", options),
   makeRenderFile("OEBPS/toc.ncx", options),
@@ -52,15 +67,29 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
     // Transform the view to include only the spine nodes.
     transformView: (ctx) => (ctx.view.spine),
   }),
+  // Render the chapters.
   makeRenderChapters("chapter.xhtml", {
     createRenderer,
     // Transform the filename of a chapter.
     transformFilename: (_, i) => `OEBS/chapters/chapter-${i}.xhtml`,
+    // Transform the view to include the chapter, CSS, and fonts nodes.
+    transformView: (ctx, chapter) => {
+      const { view } = ctx;
+
+      const cssNodes = chapter?.css?.map((css) => {
+        const id = css.ref.id;
+        return view.css.find((node) => node.id === id)!;
+      });
+
+      const fontNodes = chapter?.fonts?.map((font) => {
+        const id = font.ref.id;
+        return view.fonts.find((node) => node.id === id)!;
+      });
+
+      return { chapter, css: cssNodes, fonts: fontNodes };
+    },
   }),
-  makeRenderFonts({
-    transformFilename: (font) => `OEBPS/fonts/${font.name}`,
-  }),
-  // ... Add more steps here.
+  // ... More steps here.
 );
 
 // Create the metadata.
@@ -83,8 +112,8 @@ const metadata = MetadataBuilder.create()
 const view: RenderView = {
   metadata: {
     id: "metadata",
-    ...{ ...metadata, mType: metadata.type }, // FIXME: The node has a `type` property which overlaps with the `type` property of the `Metadata` type.
     type: NodeType.Metadata,
+    ...metadata,
   },
   chapters: [
     {
@@ -101,7 +130,7 @@ const view: RenderView = {
       id: "spine-1",
       type: NodeType.Spine,
       order: 1,
-      idref: {
+      ref: {
         type: NodeType.Chapter,
         id: "chapter-1",
       },
@@ -127,10 +156,9 @@ const templates = await load(templateDir) as Templates;
 // The log is used to log events during the render pipeline and generation of the EPUB file.
 const log = createLog();
 
+// Log events to the console.
 log.addEventListener("log", (event) => {
-  // Log the event to the console.
-  const { level, message, meta } = event.detail;
-  console.log(`[${level}] ${message}`, meta);
+  console.log(log.format(event.detail));
 });
 
 // Create the context.
