@@ -24,12 +24,13 @@ export function makeRenderCss(
   options?: RenderCssOptions,
 ): RenderStep<Locked<RenderContext>> {
   const renderStep: Step<RenderContext> = async function renderCss(ctx) {
-    const { view, structure, log } = ctx;
+    const { view, structure, log: baseLog } = ctx;
+    const log = baseLog.namespace("css");
     const { css } = view;
 
     if (!css.length) {
       // No css to render.
-      log.info("[css] No CSS to render.");
+      log.info("No CSS to render.");
       return;
     }
 
@@ -49,13 +50,13 @@ export function makeRenderCss(
           `Failed to render CSS: ${node.name}`,
         );
 
-        log.error(`[css] ${error.message}`, { error });
+        log.error(error.message, { error });
         throw error;
       }
     }
 
     // Log the number of css files rendered.
-    log.info(`[css] Rendered ${css.length} CSS files.`, { css });
+    log.info(`Rendered ${css.length} CSS files.`, { css });
   };
 
   return renderStep as RenderStep<Locked<RenderContext>>;

@@ -13,8 +13,11 @@ import { setAtPath } from "../../helpers";
 import { getRenderView, makeIncluder, pathSep } from "../helpers";
 import { IncludeError, RenderError } from "../errors";
 
-/** Sort chapters by their order. */
-const sortChapters = (a: ChapterNode, b: ChapterNode) => a.order - b.order;
+/** A node with an order. */
+export type Ordered = { order: number };
+
+/** Sort nodes by order. */
+const sortOrdered = (a: Ordered, b: Ordered) => a.order - b.order;
 
 /** Options for rendering chapters. */
 export interface RenderChapterOptions<View> {
@@ -42,7 +45,8 @@ export function makeRenderChapters<View = RenderView>(
   const transformView = options.transformView;
 
   const renderStep: Step<RenderContext> = async function renderChapters(ctx) {
-    const { view, templates, structure, log } = ctx;
+    const { view, templates, structure, log: baseLog } = ctx;
+    const log = baseLog.namespace("chapters");
     const template = templates[path];
 
     if (!template) {
@@ -51,31 +55,30 @@ export function makeRenderChapters<View = RenderView>(
         `Template not found: ${path}`,
       );
 
-      log.error(`[chapters] ${error.message}`, { error });
+      log.error(error.message, { error });
       throw error;
     }
 
+    if (!view.chapters.length) {
+      log.warn(`No chapters found in view.`, { view });
+      return;
+    }
+
     // Create a renderer for the template.
-    const render = createRenderer(
-      template,
-      {
-        filename: path,
-        includer: makeIncluder(ctx),
-      },
-    );
+    const render = createRenderer(template, {
+      filename: path,
+      includer: makeIncluder(ctx),
+    });
 
     let chapterCount = 0;
 
     /** Render the given chapters. */
-    const renderChapters = async (chapters: ChapterNode[], depth = -1) => {
+    const renderChapters = async (chapters: ChapterNode[], depth = 0) => {
       // Sort chapters so they are rendered in the correct order.
-      const sortedChapters = [...chapters].sort(sortChapters);
+      const sortedChapters = [...chapters].sort(sortOrdered);
 
-      for (let j = 1; j <= sortedChapters.length; j++) {
-        chapterCount++;
-
-        // Render the chapter.
-        await renderChapter(sortedChapters[j], j, depth + 1);
+      for (let i = 1; i <= sortedChapters.length; i++) {
+        await renderChapter(sortedChapters[i], i, depth);
       }
     };
 
@@ -92,12 +95,12 @@ export function makeRenderChapters<View = RenderView>(
         const content = await render(renderView);
         const filename = transformFilename?.(chapter, i) ??
             depth > 0
-          ? `OEBS/chapter-${depth}-${i}.xhtml`
+          ? `OEBS/chapter-${i}-${depth}.xhtml`
           : `OEBS/chapter-${i}.xhtml`;
 
         // Set the rendered content in the structure.
         setAtPath(structure, filename, content, pathSep);
-        i++;
+        chapterCount++;
       } catch (err) {
         const error = new RenderError(
           [err],
@@ -105,7 +108,7 @@ export function makeRenderChapters<View = RenderView>(
           `Failed to render chapter: ${chapter.title} (${i})`,
         );
 
-        log.error(`[chapters] ${error.message}`, { error });
+        log.error(error.message, { error });
         throw err;
       }
 
@@ -117,7 +120,7 @@ export function makeRenderChapters<View = RenderView>(
     // Render the chapters in the view.
     await renderChapters(view.chapters);
 
-    log.info(`[chapters] Rendered ${chapterCount} chapters.`, {
+    log.info(`Rendered ${chapterCount} chapters.`, {
       chapters: ctx.view.chapters,
       count: chapterCount,
     });

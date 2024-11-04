@@ -24,12 +24,13 @@ export function makeRenderImages(
   options?: RenderImageOptions,
 ): RenderStep<Locked<RenderContext>> {
   const renderStep: Step<RenderContext> = async function renderFonts(ctx) {
-    const { view, structure, log } = ctx;
+    const { view, structure, log: baseLog } = ctx;
+    const log = baseLog.namespace("images");
     const { images } = view;
 
     if (!images.length) {
       // No images to render.
-      log.info("[images] No images to render.");
+      log.info("No images to render.");
       return;
     }
 
@@ -49,13 +50,13 @@ export function makeRenderImages(
           `Failed to render image: ${image.name}`,
         );
 
-        log.error(`[images] ${error.message}`, { error });
+        log.error(error.message, { error });
         throw error;
       }
     }
 
     // Log the number of images rendered.
-    log.info(`[images] Rendered ${images.length} images.`, { images });
+    log.info(`Rendered ${images.length} images.`, { images });
   };
 
   return renderStep as RenderStep<Locked<RenderContext>>;

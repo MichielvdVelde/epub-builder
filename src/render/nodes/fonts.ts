@@ -24,12 +24,13 @@ export function makeRenderFonts(
   options?: RenderFontOptions,
 ): RenderStep<Locked<RenderContext>> {
   const renderStep: Step<RenderContext> = async function renderFonts(ctx) {
-    const { view, structure, log } = ctx;
+    const { view, structure, log: baseLog } = ctx;
+    const log = baseLog.namespace("fonts");
     const { fonts } = view;
 
     if (!fonts.length) {
       // No fonts to render.
-      log.info("[fonts] No fonts to render.");
+      log.info("No fonts to render.");
       return;
     }
 
@@ -49,13 +50,13 @@ export function makeRenderFonts(
           `Failed to render font: ${font.name}`,
         );
 
-        log.error(`[fonts] ${error.message}`, { error });
+        log.error(error.message, { error });
         throw error;
       }
     }
 
     // Log the number of fonts rendered.
-    log.info(`[fonts] Rendered ${fonts.length} fonts.`, { fonts });
+    log.info(`Rendered ${fonts.length} fonts.`, { fonts });
   };
 
   return renderStep as RenderStep<Locked<RenderContext>>;

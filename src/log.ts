@@ -23,10 +23,10 @@ export interface LogItem {
 /** The metadata of a log item. */
 export type LogMeta = Record<string, unknown>;
 
-/**
- * A log. This is an array of log items with additional methods for logging.
- */
-export interface Log extends Array<LogItem> {
+/** A function to format a log item. */
+export type FormatLogItem = (item: LogItem) => string;
+
+export interface LogFunctions {
   /**
    * Log a message with the given level.
    * @param level The level of the log message.
@@ -44,6 +44,26 @@ export interface Log extends Array<LogItem> {
   warn(message: string, meta?: LogMeta): void;
   /** Log an error message. */
   error(message: string, meta?: LogMeta): void;
+}
+
+export interface LogNamespace extends LogFunctions {
+  readonly root: Log;
+}
+
+/**
+ * A log. This is an array of log items with additional methods for logging.
+ */
+export interface Log extends Array<LogItem>, LogFunctions {
+  /** The namespace of the log. */
+  readonly space?: string;
+  /**
+   * Add a namespace to the log. This returns a new log object with the namespace
+   * prepended to the log messages.
+   * @param name The namespace to add.
+   */
+  namespace(name: string): LogNamespace;
+  /** Format a log item. */
+  format(item: LogItem): string;
   /** Add an event listener for log events. */
   addEventListener(
     type: "log",
@@ -99,10 +119,15 @@ export interface Log extends Array<LogItem> {
   items(level?: LogLevel | LogLevel[]): IterableIterator<LogItem>;
 }
 
+const defaultFormatter: FormatLogItem = (item) =>
+  `[${item.level.toUpperCase()}] ${item.message}`;
+
 /** Options for creating a log. */
 export interface CreateLogOptions {
   /** Do not emit log events. */
   noEmit?: boolean;
+  /** Format a log item. */
+  formatter?: FormatLogItem;
 }
 
 /**
@@ -110,19 +135,53 @@ export interface CreateLogOptions {
  */
 export function createLog(options?: CreateLogOptions): Log {
   const emit = !options?.noEmit;
+  const formatter = options?.formatter ?? defaultFormatter;
   const log: Log = [] as any;
   const target = emit ? new EventTarget() : null; // Only create an event target when emitting is enabled
 
+  const namespace: Log["namespace"] = (name) => {
+    const namespaceName = log.space ? `${log.space}.${name}` : name;
+
+    return {
+      get space() {
+        return namespaceName;
+      },
+      get root() {
+        return log;
+      },
+      log: (level, message, meta) => {
+        const withNamespace = meta
+          ? { ...meta, namespace: namespaceName }
+          : { namespace: namespaceName };
+        log.log(level, `[${namespaceName}] ${message}`, withNamespace);
+      },
+      info: (message, meta) => {
+        log.info(message, meta);
+      },
+      warn: (message, meta) => {
+        log.warn(message, meta);
+      },
+      error: (message, meta) => {
+        log.error(message, meta);
+      },
+    };
+  };
+
   const logFn: Log["log"] = (level, message, meta) => {
-    const timestamp = Date.now();
-    log.push({ level, message, meta, timestamp });
+    const item: LogItem = { level, message, meta, timestamp: Date.now() };
+    log.push(item);
 
     if (target) {
-      const detail = { level, message, meta, timestamp };
-      target.dispatchEvent(new CustomEvent(level, { detail }));
-      target.dispatchEvent(new CustomEvent("log", { detail }));
+      // Dispatch the log event asynchronously, so that the log event is not blocking
+      setTimeout(() => {
+        target.dispatchEvent(new CustomEvent(level, { detail: item }));
+        target.dispatchEvent(new CustomEvent("log", { detail: item }));
+      });
     }
   };
+
+  log.namespace = namespace;
+  log.format = formatter;
 
   log.log = logFn;
   log.info = (message, meta) => logFn(LogLevel.Info, message, meta);

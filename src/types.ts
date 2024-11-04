@@ -55,7 +55,7 @@ export interface RefNode<Type extends NodeType> extends Node {
   /** The type of the node. */
   type: NodeType.Ref;
   /** The reference. */
-  idref: {
+  ref: {
     /** The type of the reference node. */
     type: Type;
     /** The unique identifier of the reference node. */
@@ -83,6 +83,10 @@ export interface ChapterNode extends Node, ContentSource<ContentFormat.Text> {
   order: number;
   /** The child chapters. */
   children?: ChapterNode[];
+  /** The CSS files of the chapter. */
+  css?: RefNode<NodeType.Css>[];
+  /** The images of the chapter. */
+  fonts?: RefNode<NodeType.Font>[];
 }
 
 /**
