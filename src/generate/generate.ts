@@ -1,4 +1,9 @@
-import type { EntryObject, EntryType, EpubStructure } from "./types";
+import type {
+  EntryObject,
+  EntryType,
+  EpubStructure,
+  StreamFile,
+} from "./types";
 import type { Log } from "../log";
 import { createReader, isEntry, isEntryObject } from "./helpers";
 import {
@@ -70,6 +75,8 @@ export async function addEntries<Type>(
 export interface AddEntryOptions extends ZipWriterAddDataOptions {
   /** The logger for logging messages. */
   log?: Log;
+  /** The function to stream a file. */
+  streamFile?: StreamFile;
 }
 
 /**
@@ -87,11 +94,13 @@ export async function addEntry<Type>(
   options?: AddEntryOptions,
 ): Promise<EntryMetaData> {
   const log = options?.log;
+  const streamFile = options?.streamFile;
 
   let meta: EntryMetaData | undefined;
 
   try {
-    const reader = createReader(entry);
+    // TODO: Add support for ContentSource deferment.
+    const reader = await createReader(entry, { streamFile });
     meta = await writer.add(filename, reader, options);
 
     // Log the added entry.
@@ -119,6 +128,14 @@ export interface GenerateOptions extends
   > {
   /** The logger for logging messages. */
   log?: Log;
+  /**
+   * The function to stream a file. This function is used to stream a file from the source
+   * using a readable stream. This is useful for streaming large files or files that are not
+   * available in memory.
+   *
+   * This function is called for deferred content sources ({@link DeferredContentSource}).
+   */
+  streamFile?: StreamFile;
 }
 
 /**

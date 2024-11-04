@@ -40,9 +40,7 @@ export function makeRenderChapters<View = RenderView>(
   path: string,
   options: RenderChapterOptions<View>,
 ): RenderStep<Locked<RenderContext>> {
-  const { createRenderer } = options;
-  const transformFilename = options.transformFilename;
-  const transformView = options.transformView;
+  const { createRenderer, transformFilename, transformView } = options;
 
   const renderStep: Step<RenderContext> = async function renderChapters(ctx) {
     const { view, templates, structure, log: baseLog } = ctx;

@@ -182,6 +182,19 @@ export interface ContentSource<
 }
 
 /**
+ * A deferred content source.
+ *
+ * @template Format The format of the content.
+ * @template Type The type of the content.
+ */
+export interface DeferredContentSource<Format extends ContentFormat> {
+  /** The file path or URL of the source. */
+  src: PathLike;
+  /** The format of the content. */
+  format: Format;
+}
+
+/**
  * Options for getting the content.
  */
 export interface GetContentOptions<Type = unknown> {

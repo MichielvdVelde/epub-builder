@@ -46,9 +46,9 @@ These are some of the features that EPUB Builder aims to provide:
 - 🖋️ **Logging**: Integrated logging with adjustable levels (info, warn, error)
   and optional metadata, providing real-time visibility and debugging
   information for each stage of the rendering and packaging process.
-- 🛠️ **Error Handling and Debugging**: Custom error types (`IncludeError`,
-  `RenderError`) and detailed logging messages simplify troubleshooting by
-  pinpointing errors in specific templates or processing steps.
+- 🛠️ **Error Handling and Debugging**: Custom error types and detailed logging
+  messages simplify troubleshooting by pinpointing errors in specific templates
+  or processing steps.
 - 📦 **Standards-Compliant EPUB Packaging**: Uses `@zip.js/zip.js` to compress
   and structure EPUB files in a ZIP format, adhering to EPUB’s directory and
   file organization requirements.

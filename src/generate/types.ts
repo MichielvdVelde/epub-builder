@@ -1,4 +1,5 @@
 import type { TextReader, Uint8ArrayReader } from "@zip.js/zip.js";
+import { ContentFormat, DeferredContentSource, PathLike } from "../types";
 
 /**
  * An entry object in the ZIP archive. The key is the file path and the value is the entry.
@@ -8,12 +9,18 @@ export type EntryObject<T = unknown> = { [key: string]: Entry<T> };
 /**
  * An entry in the ZIP archive. It can be a string or an entry object.
  */
-export type Entry<T = unknown> = T | EntryObject<T>;
+export type Entry<T = unknown> =
+  | T
+  | EntryObject<T>
+  | DeferredContentSource<ContentFormat>;
 
 /**
  * The type of an entry in the ZIP archive.
  */
-export type EntryType = string | Uint8Array;
+export type EntryType =
+  | string
+  | Uint8Array
+  | DeferredContentSource<ContentFormat>;
 
 /**
  * The structure of an EPUB book.
@@ -47,23 +54,17 @@ export interface EpubStructure {
   } & EntryObject;
 }
 
-/**
- * The supported entry types.
- *
- * Each supported entry type has a check function to determine if the entry is of that type
- * and a create function to create a reader from the entry.
- *
- * @template T The type of the entry.
- */
-export interface SupportedEntryType<T extends EntryType> {
-  /** The type of the entry. */
-  readonly type: string;
-  /** Check if the entry is of the supported type. */
-  check: (type: EntryType) => type is T;
-  /** Create a reader from the entry. */
-  create: (entry: T) => ReaderType<T>;
-}
-
 /** The reader type for the entry. */
 export type ReaderType<T extends EntryType> = T extends string ? TextReader
-  : Uint8ArrayReader;
+  : T extends Uint8Array ? Uint8ArrayReader
+  : T extends DeferredContentSource<ContentFormat> ? ReadableStream<Uint8Array>
+  : never;
+
+/**
+ * Stream a file from a readable stream. Instead of loading the entire file into memory, the file is streamed,
+ * which is useful for large files. This function is used for deferred content sources.
+ * @param path The file path or URL of the file to stream.
+ */
+export type StreamFile = (
+  path: PathLike,
+) => Promise<ReadableStream<Uint8Array>>;

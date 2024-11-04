@@ -169,7 +169,7 @@ await renderPipeline.run(context);
 
 // Create a writer.
 // This writer is used to write the EPUB file to a buffer.
-// Al writers supported by @zip.js/zip.js are supported.
+// All writers supported by @zip.js/zip.js are supported.
 const writer = new Uint8ArrayWriter();
 
 // Generate the EPUB file.
