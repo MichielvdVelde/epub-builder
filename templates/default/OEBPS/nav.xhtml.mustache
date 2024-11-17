@@ -10,13 +10,20 @@
   <nav epub:type="toc" id="toc">
     <h1>Table of Contents</h1>
     <ol>
-      {{#items}}
+      {{#spine}}
       <li>
         <a href="{{href}}">
           {{title}}
         </a>
         {{#children}}
-        {{> navigationList}}
+        <ol>
+          {{#children}}
+          <li>
+            <a href="{{href}}">
+              {{title}}
+            </a>
+          </li>
+          {{/children}}
         {{/children}}
       </li>
       {{/items}}

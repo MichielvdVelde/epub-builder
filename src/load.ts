@@ -144,8 +144,7 @@ export async function loadDir<Type = unknown>(
 
     if (await isFile(filePath)) {
       try {
-        const content = await readFile(filePath);
-        tree[file] = content;
+        tree[file] = await readFile(filePath);
       } catch (error) {
         throw new LoadError([error], filePath);
       }

@@ -88,7 +88,7 @@ export type RequiredTemplates =
 
 /** The templates for an EPUB. */
 export type Templates =
-  & Required<Record<RequiredTemplates, TemplateObject | undefined>>
+  & Required<Record<RequiredTemplates, TemplateObject>>
   & Record<string, TemplateObject | undefined>;
 
 /** The context for the render pipeline. */

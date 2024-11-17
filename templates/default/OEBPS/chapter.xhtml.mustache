@@ -3,14 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-  <title>{{title}}</title>
-  {{#cssFiles}}
+  <title>{{chapter.title}}</title>
+  {{#css}}
   <link href="{{.}}" rel="stylesheet" type="text/css" />
-  {{/cssFiles}}
+  {{/css}}
 </head>
 
 <body>
-  <h1>{{title}}</h1>
   {{{content}}}
 </body>
 

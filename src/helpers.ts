@@ -41,7 +41,9 @@ export function setAtPath<T>(
   let current = obj;
 
   for (let i = 0; i < keys.length; i++) {
-    if (i === keys.length - 1) {
+    if (isPrototypePolluted(keys[i])) {
+      continue;
+    } else if (i === keys.length - 1) {
       current[keys[i]] = value;
     } else {
       if (!current[keys[i]]) {
@@ -52,6 +54,10 @@ export function setAtPath<T>(
     }
   }
 }
+
+/** Check if a key is a prototype pollution key. */
+const isPrototypePolluted = (key: string) =>
+  ["__proto__", "constructor", "prototype"].includes(key);
 
 /**
  * Options for getting a value at a path.

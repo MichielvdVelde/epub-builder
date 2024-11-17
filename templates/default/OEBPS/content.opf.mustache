@@ -20,11 +20,11 @@
     {{#metadata.date}}
     <dc:date>{{metadata.date}}</dc:date>
     {{/metadata.date}}
-    {{#additionalMetadata}}
-    {{#additionalMetadata}}
+    {{#additional}}
+    {{#additional}}
     <{{key}}>{{value}}</{{key}}>
-    {{/additionalMetadata}}
-    {{/additionalMetadata}}
+    {{/additional}}
+    {{/additional}}
   </metadata>
   <manifest>
     {{#manifest}}
@@ -34,7 +34,7 @@
   </manifest>
   <spine>
     {{#spine}}
-    <itemref idref="{{idref}}" linear="{{linear}}" />
+    <itemref idref="{{ref.id}}" linear="{{linear}}" />
     {{/spine}}
   </spine>
 </package>

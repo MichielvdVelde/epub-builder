@@ -99,11 +99,8 @@ export async function addEntry<Type>(
   let meta: EntryMetaData | undefined;
 
   try {
-    // TODO: Add support for ContentSource deferment.
     const reader = await createReader(entry, { streamFile });
     meta = await writer.add(filename, reader, options);
-
-    // Log the added entry.
     log?.info(`Added entry "${filename}".`, { meta });
   } catch (error) {
     const err = new AggregateError(
@@ -111,9 +108,7 @@ export async function addEntry<Type>(
       `Failed to add entry "${filename}".`,
     );
 
-    // Log the error.
     log?.error(err.message);
-
     throw err;
   }
 

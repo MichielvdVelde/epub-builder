@@ -13,10 +13,10 @@ import { setAtPath } from "../../helpers";
 import { getRenderView, makeIncluder, pathSep } from "../helpers";
 import { IncludeError, RenderError } from "../errors";
 
-/** A node with an order. */
+/** An  object with an order proeprty. */
 export type Ordered = { order: number };
 
-/** Sort nodes by order. */
+/** Sort objects by their order property. */
 const sortOrdered = (a: Ordered, b: Ordered) => a.order - b.order;
 
 /** Options for rendering chapters. */
@@ -84,7 +84,7 @@ export function makeRenderChapters<View = RenderView>(
     const renderChapter = async (
       chapter: ChapterNode,
       i: number,
-      depth = 0,
+      depth: number,
     ) => {
       // Get the render view from the context.
       const renderView = getRenderView(ctx, chapter, transformView);

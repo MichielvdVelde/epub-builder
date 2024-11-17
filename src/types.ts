@@ -17,7 +17,6 @@ export type MediaFormat = string;
  * The format of the font.
  *
  * The value is a MIME type and identifies the type of font.
- * The format must be supported by the builder.
  */
 export type FontFormat = string;
 
@@ -64,8 +63,10 @@ export interface RefNode<Type extends NodeType> extends Node {
 /**
  * The metadata of the book.
  */
-export interface MetadataNode extends Node, Metadata {
+export interface MetadataNode extends Node {
   type: NodeType.Metadata;
+  /** The metadata of the book. */
+  metadata: Metadata;
 }
 
 /**
@@ -95,6 +96,8 @@ export interface SpineNode
   type: NodeType.Spine;
   /** The order of the spine item. */
   order: number;
+  /** The linear property of the spine item. */
+  linear?: boolean;
 }
 
 /**

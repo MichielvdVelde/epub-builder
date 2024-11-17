@@ -119,7 +119,12 @@ export interface Log extends Array<LogItem>, LogFunctions {
   items(level?: LogLevel | LogLevel[]): IterableIterator<LogItem>;
 }
 
-const defaultFormatter: FormatLogItem = (item) =>
+/**
+ * The default log item formatter.
+ *
+ * The format is `[LEVEL] MESSAGE`.
+ */
+export const defaultFormatter: FormatLogItem = (item) =>
   `[${item.level.toUpperCase()}] ${item.message}`;
 
 /** Options for creating a log. */
@@ -150,10 +155,10 @@ export function createLog(options?: CreateLogOptions): Log {
         return log;
       },
       log: (level, message, meta) => {
-        const withNamespace = meta
-          ? { ...meta, namespace: namespaceName }
-          : { namespace: namespaceName };
-        log.log(level, `[${namespaceName}] ${message}`, withNamespace);
+        log.log(level, `[${namespaceName}] ${message}`, {
+          ...meta,
+          namespace: namespaceName,
+        });
       },
       info: (message, meta) => {
         log.info(message, meta);
@@ -197,13 +202,14 @@ export function createLog(options?: CreateLogOptions): Log {
     .bind(target) as Log["removeEventListener"] ?? noop;
 
   log.items = function* (level?: LogLevel | LogLevel[]) {
+    const pick = (item: LogItem) =>
+      level === undefined ||
+      (Array.isArray(level)
+        ? level.includes(item.level)
+        : item.level === level);
+
     for (const item of log) {
-      if (
-        level === undefined ||
-        (Array.isArray(level)
-          ? level.includes(item.level)
-          : item.level === level)
-      ) {
+      if (pick(item)) {
         yield item;
       }
     }

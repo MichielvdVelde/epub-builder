@@ -22,7 +22,8 @@ export function isEntry(entry: unknown): entry is Entry {
 export function isDeferredContentSource(
   source: unknown,
 ): source is DeferredContentSource {
-  return typeof source === "object" && source !== null && "src" in source;
+  return typeof source === "object" && source !== null && "src" in source &&
+    "deferred" in source && source.deferred === true;
 }
 
 /** The options for creating a reader. */
