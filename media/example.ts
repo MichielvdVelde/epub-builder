@@ -25,6 +25,9 @@ import { load } from "./load";
 import { render, type RenderOptions } from "mustache";
 import { createLog } from "./log";
 
+// Helper function to add the `.mustache` extension to a filename.
+const addExt = (name: string) => `${name}.mustache`;
+
 // Create a renderer.
 // We'll use Mustache to render the templates.
 const createRenderer: CreateRenderer<any> = (template, options) => {
@@ -59,13 +62,13 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
     transformFilename: (image) => `OEBPS/images/${image.name}`,
   }),
   // Render the files required by the EPUB specification.
-  makeRenderFile("META-INF/container.xml", options),
-  makeRenderFile("OEBPS/content.opf", options),
-  makeRenderFile("OEBPS/toc.ncx", options),
-  makeRenderFile("OEBPS/nav.xhtml", {
+  makeRenderFile(addExt("META-INF/container.xml"), options),
+  makeRenderFile(addExt("OEBPS/content.opf"), options),
+  makeRenderFile(addExt("OEBPS/toc.ncx"), options),
+  makeRenderFile(addExt("OEBPS/nav.xhtml"), {
     createRenderer,
     // Transform the view to include only the spine nodes.
-    transformView: (ctx) => (ctx.view.spine),
+    transformView: (ctx) => ({ spine: ctx.view.spine }),
   }),
   // Render the chapters.
   makeRenderChapters("chapter.xhtml", {
@@ -73,17 +76,18 @@ const renderPipeline = createPipeline<Locked<RenderContext>>(
     // Transform the filename of a chapter.
     transformFilename: (_, i) => `OEBS/chapters/chapter-${i}.xhtml`,
     // Transform the view to include the chapter, CSS, and fonts nodes.
+    // For CSS and fonts, we only need the name (path) of the node in order to render the chapter.
     transformView: (ctx, chapter) => {
       const { view } = ctx;
 
-      const cssNodes = chapter?.css?.map((css) => {
+      const cssNodes = chapter!.css!.map((css) => {
         const id = css.ref.id;
-        return view.css.find((node) => node.id === id)!;
+        return view.css.find((node) => node.id === id)!.name;
       });
 
-      const fontNodes = chapter?.fonts?.map((font) => {
+      const fontNodes = chapter!.fonts!.map((font) => {
         const id = font.ref.id;
-        return view.fonts.find((node) => node.id === id)!;
+        return view.fonts.find((node) => node.id === id)!.name;
       });
 
       return { chapter, css: cssNodes, fonts: fontNodes };
@@ -113,16 +117,34 @@ const view: RenderView = {
   metadata: {
     id: "metadata",
     type: NodeType.Metadata,
-    ...metadata,
+    metadata,
   },
   chapters: [
     {
       id: "chapter-1",
       type: NodeType.Chapter,
       title: "Chapter 1",
-      content: "Hello, world!",
-      format: "text/plain",
+      content: "<h1>Chapter 1</h1><p>This is chapter 1.</p>",
+      format: "text/html",
       order: 1,
+      css: [
+        {
+          id: "css-ref-1",
+          type: NodeType.Ref,
+          ref: {
+            type: NodeType.Css,
+            id: "css-1",
+          },
+        },
+      ],
+    },
+    {
+      id: "chapter-2",
+      type: NodeType.Chapter,
+      title: "Chapter 2",
+      content: "<h1>Chapter 2</h1><p>This is chapter 2.</p>",
+      format: "text/html",
+      order: 2,
     },
   ],
   spine: [
@@ -143,7 +165,14 @@ const view: RenderView = {
     format: "image/jpeg",
   },
   fonts: [],
-  css: [],
+  css: [
+    {
+      id: "css-1",
+      type: NodeType.Css,
+      name: "styles.css",
+      content: "body { color: red; }",
+    },
+  ],
   images: [],
 };
 
